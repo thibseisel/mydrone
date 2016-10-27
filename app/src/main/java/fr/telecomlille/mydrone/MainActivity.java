@@ -1,5 +1,6 @@
 package fr.telecomlille.mydrone;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,27 +31,32 @@ public class MainActivity extends AppCompatActivity
 
     public static final String EXTRA_DEVICE_SERVICE = "DeviceService";
     private static final String TAG = "MainActivity";
+
     private ARDiscoveryService mArdiscoveryService;
     private ServiceConnection mArdiscoveryServiceConnection;
     private ARDiscoveryServicesDevicesListUpdatedReceiver mArdiscoveryServicesDevicesListUpdatedReceiver;
 
-    private ListView mDeviceListview;
     private DeviceListAdapter mAdapter;
     private ContentLoadingProgressBar mProgress;
-    private View mEmpty;
+    private View mEmptyView;
+    private WifiManager mWifiManager;
+    private WifiStateChangedReceiver mWifiStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDeviceListview = (ListView) findViewById(android.R.id.list);
+        mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        mWifiStateReceiver = new WifiStateChangedReceiver();
+
+        ListView deviceListview = (ListView) findViewById(android.R.id.list);
         mAdapter = new DeviceListAdapter(this);
-        mDeviceListview.setAdapter(mAdapter);
+        deviceListview.setAdapter(mAdapter);
 
         mProgress = (ContentLoadingProgressBar) findViewById(android.R.id.progress);
 
-        mDeviceListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        deviceListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> view, View item, int pos, long id) {
                 Intent controllerActivity = new Intent(MainActivity.this, ControllerActivity.class);
@@ -64,18 +70,12 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        if (!wifiManager.isWifiEnabled()) {
-            Snackbar.make(findViewById(R.id.activity_main), "Wifi is disabled.", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("Enable", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Log.d(TAG, "Enabling Wi-Fi...");
-                            wifiManager.setWifiEnabled(true);
-                        }
-                    }).show();
+        if (!mWifiManager.isWifiEnabled()) {
+            showWifiDisabledMessage();
         }
 
+        registerReceiver(mWifiStateReceiver,
+                new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
         initDiscoveryService();
         registerReceivers();
     }
@@ -83,22 +83,25 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-
         mProgress.hide();
+        unregisterReceiver(mWifiStateReceiver);
         closeServices();
         unregisterReceivers();
     }
 
     /**
      * Démarre le service permettant de chercher des drônes à proximité.
+     * Etant donné que le DiscoveryService s'appuie sur un BoundService,
+     * il doit être connecté dans {@link #onStart()} et déconnecté dans {@link #onPause()}.
      */
     private void initDiscoveryService() {
-        // create the service connection
+        // Initialise la connexion au service
         if (mArdiscoveryServiceConnection == null) {
             mArdiscoveryServiceConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
                     mArdiscoveryService = ((ARDiscoveryService.LocalBinder) service).getService();
+                    Log.d(TAG, "onServiceConnected: discovery service is now bound.");
                     startDiscovery();
                 }
 
@@ -110,19 +113,22 @@ public class MainActivity extends AppCompatActivity
         }
 
         if (mArdiscoveryService == null) {
-            // if the discovery service doesn't exists, bind to it
-            Intent i = new Intent(getApplicationContext(), ARDiscoveryService.class);
-            getApplicationContext().bindService(i, mArdiscoveryServiceConnection, Context.BIND_AUTO_CREATE);
+            // Si le service n'existe pas, le créer et l'attacher à l'Activity
+            Intent discoveryService = new Intent(getApplicationContext(), ARDiscoveryService.class);
+            getApplicationContext().bindService(discoveryService, mArdiscoveryServiceConnection, Context.BIND_AUTO_CREATE);
         } else {
-            // if the discovery service already exists, start discovery
+            // Si le service est déjà créé, commencer la recherche.
             startDiscovery();
         }
     }
 
     /**
-     * Commence à chercher les drônes à proximité.
+     * Si le service est démarré et attaché à l'Activity,
+     * commencer à chercher les appareils à proximité via WiFi, Bluetooth Low Energy et USB.
+     * Le WiFi ou le Bluetooth doivent être activés pour que cela fonctionne.
      */
     private void startDiscovery() {
+        Log.d(TAG, "Starting discovery...");
         if (mArdiscoveryService != null) {
             mArdiscoveryService.start();
             mProgress.show();
@@ -130,27 +136,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Méthode de callback appelée lorsqu'on a terminé de rechercher des drônes à prixmité.
-     * Cette méthode peuple la ListView avec des informations sur les appareils disponibles.
+     * Méthode de callback appelée lorsqu'on a terminé de rechercher des appareils à proximité.
      */
     @Override
     public void onServicesDevicesListUpdated() {
-        Log.d(TAG, "onServicesDevicesListUpdated ...");
+        Log.d(TAG, "onServicesDevicesListUpdated");
         if (mArdiscoveryService != null) {
+
+            // Récupère la liste des appareils détectés
             List<ARDiscoveryDeviceService> deviceList = mArdiscoveryService.getDeviceServicesArray();
+            Log.d(TAG, "onServicesDevicesListUpdated: found " + deviceList.size() + " devices.");
 
-            Log.d(TAG, "List is empty or null ? " + (deviceList == null || deviceList.isEmpty()));
-
-            // Do what you want with the device list
+            // Met à jour la ListView
             mAdapter.clear();
             mAdapter.addAll(deviceList);
             mProgress.hide();
+
             showEmptyView(deviceList.isEmpty());
         }
     }
 
     /**
-     * Enregistre un BroadcastReceiver local, pour recevoir une notification lorsque la liste des
+     * Enregistre un BroadcastReceiver pour recevoir une notification lorsque la liste des
      * appareils est disponible. La méthode {@link #onServicesDevicesListUpdated()} sera appelée.
      */
     private void registerReceivers() {
@@ -160,20 +167,25 @@ public class MainActivity extends AppCompatActivity
                 new IntentFilter(ARDiscoveryService.kARDiscoveryServiceNotificationServicesDevicesListUpdated));
     }
 
+    /**
+     * Arrêter l'écoute des notifications envoyées lorsque la liste des appareils est disponible.
+     * La méthode {@link #onServicesDevicesListUpdated()} ne sera plus appelée.
+     */
     private void unregisterReceivers() {
         LocalBroadcastManager localBroadcastMgr = LocalBroadcastManager.getInstance(getApplicationContext());
         localBroadcastMgr.unregisterReceiver(mArdiscoveryServicesDevicesListUpdatedReceiver);
     }
 
+    /**
+     * Arrête le service de recherche des appareils à proximité.
+     * Le service devra être démarré à nouveau par {@link #initDiscoveryService()}.
+     */
     private void closeServices() {
-        Log.d(TAG, "closeServices ...");
-
         if (mArdiscoveryService != null) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     mArdiscoveryService.stop();
-
                     getApplicationContext().unbindService(mArdiscoveryServiceConnection);
                     mArdiscoveryService = null;
                 }
@@ -181,10 +193,43 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Affiche/masque un message indiquant à l'utilisateur qu'aucun appareil n'a été détecté.
+     * @param shown true pour afficher, false pour masquer
+     */
     private void showEmptyView(boolean shown) {
-        if (mEmpty == null) {
-            mEmpty = ((ViewStub) findViewById(android.R.id.empty)).inflate();
+        if (mEmptyView == null) {
+            mEmptyView = ((ViewStub) findViewById(android.R.id.empty)).inflate();
         }
-        mEmpty.setVisibility(shown ? View.VISIBLE : View.GONE);
+        mEmptyView.setVisibility(shown ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Affiche un message en bas de l'écran pour indiquer à l'utilisateur que le WiFi est désactivé.
+     * Une action permet d'activer automatiquement le WiFi.
+     */
+    private void showWifiDisabledMessage() {
+        Snackbar.make(findViewById(R.id.activity_main), R.string.wifi_disabled, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.enable, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Log.v(TAG, "Enabling Wi-Fi...");
+                        mWifiManager.setWifiEnabled(true);
+                    }
+                }).show();
+    }
+
+    /**
+     * Un {@link BroadcastReceiver} qui écoute les changements d'états du WiFi.
+     */
+    public class WifiStateChangedReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())
+                    && mWifiManager.isWifiEnabled()) {
+                startDiscovery();
+            }
+        }
     }
 }
