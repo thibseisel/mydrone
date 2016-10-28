@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/activity_controller"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_controller"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="fr.telecomlille.mydrone.ControllerActivity">
@@ -10,7 +9,7 @@
     <fr.telecomlille.mydrone.view.BebopVideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <ProgressBar
         android:id="@+id/batteryLevel"
@@ -20,6 +19,31 @@
         android:layout_alignParentBottom="true"
         android:max="100"
         android:minHeight="0dp"
-        tools:progress="90"/>
+        tools:progress="90" />
 
+    <Button
+        android:id="@+id/btn_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/btn_takeoff"
+        android:layout_marginStart="85dp"
+        android:layout_toEndOf="@+id/btn_takeoff"
+        android:text="land" />
+
+    <Button
+        android:id="@+id/btn_takeoff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/batteryLevel"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="179dp"
+        android:text="Take Off" />
+
+    <Button
+        android:text="Emergency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/btn_emergency" />
 </RelativeLayout>

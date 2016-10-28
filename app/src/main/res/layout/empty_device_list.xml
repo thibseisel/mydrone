@@ -15,7 +15,6 @@
         android:layout_height="128dp"
         android:contentDescription="@null"
         android:padding="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display4"
         app:srcCompat="@drawable/ic_no_drone_24dp"/>
 
     <TextView
