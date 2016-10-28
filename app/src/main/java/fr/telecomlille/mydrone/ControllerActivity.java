@@ -104,9 +104,11 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         switch (newState) {
             case ARCONTROLLER_DEVICE_STATE_RUNNING:
                 Log.d(TAG, "State changed: RUNNING");
+                deviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
                 break;
             case ARCONTROLLER_DEVICE_STATE_STOPPED:
                 Log.d(TAG, "State changed: STOPPED");
+                deviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 0);
                 break;
             case ARCONTROLLER_DEVICE_STATE_STARTING:
                 Log.d(TAG, "State changed: STARTING");
