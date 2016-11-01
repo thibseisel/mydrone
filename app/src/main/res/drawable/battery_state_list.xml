@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Indicateur de batterie qui change en fonction du niveau de charge. -->
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/ic_battery_alert_24dp"
+        android:maxLevel="0"/>
+    <item
+        android:drawable="@drawable/ic_battery_20_24dp"
+        android:maxLevel="20"/>
+    <item
+        android:drawable="@drawable/ic_battery_30_24dp"
+        android:maxLevel="30"/>
+    <item
+        android:drawable="@drawable/ic_battery_50_24dp"
+        android:maxLevel="50"/>
+    <item
+        android:drawable="@drawable/ic_battery_60_24dp"
+        android:maxLevel="60"/>
+    <item
+        android:drawable="@drawable/ic_battery_80_24dp"
+        android:maxLevel="80"/>
+    <item
+        android:drawable="@drawable/ic_battery_full_24dp"
+        android:maxLevel="100"/>
+</level-list>

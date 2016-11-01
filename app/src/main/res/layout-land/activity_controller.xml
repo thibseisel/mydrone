@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/activity_controller"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="fr.telecomlille.mydrone.ControllerActivity">
+
+    <fr.telecomlille.mydrone.view.BebopVideoView
+        android:id="@+id/videoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ProgressBar
+        android:id="@+id/batteryLevel"
+        style="?android:progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:max="100"
+        android:minHeight="0dp"
+        tools:progress="90"/>
+
+    <ImageButton
+        android:id="@+id/btn_takeoff"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_flight_takeoff_24dp"
+        android:tint="@android:color/white"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:contentDescription="@string/take_off"/>
+
+    <ImageButton
+        android:id="@+id/btn_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="64dp"
+        android:minHeight="64dp"
+        android:scaleType="fitCenter"
+        android:tint="@android:color/white"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        app:srcCompat="@drawable/ic_flight_land_24dp"
+        android:layout_above="@id/btn_takeoff"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/land"/>
+
+    <Button
+        android:id="@+id/btn_emergency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/emergency"/>
+
+    <ImageView
+        android:id="@+id/battery"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true"
+        app:srcCompat="@drawable/battery_state_list"
+        android:tint="@android:color/white"
+        android:contentDescription="@string/battery_level_indicator"/>
+</RelativeLayout>

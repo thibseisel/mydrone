@@ -4,4 +4,8 @@
     <string name="enable">Activer</string>
     <string name="no_nearby_device">Aucun appareil à proximité.</string>
     <string name="wifi_disabled">Le WiFi est désactivé.</string>
+    <string name="battery_level_indicator">Indicateur du niveau de batterie</string>
+    <string name="emergency">Urgence</string>
+    <string name="land">Atterir</string>
+    <string name="take_off">Décoller</string>
 </resources>

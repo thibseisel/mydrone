@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
@@ -60,7 +61,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             e.printStackTrace();
         }
 
-        Button takeoffButton = (Button) findViewById(R.id.btn_takeoff);
+        ImageButton takeoffButton = (ImageButton) findViewById(R.id.btn_takeoff);
         takeoffButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,7 +71,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 }
             }
         });
-        Button landButton = (Button) findViewById(R.id.btn_land);
+        ImageButton landButton = (ImageButton) findViewById(R.id.btn_land);
         landButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -112,10 +113,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
     }
 
     /**
-     * Récupère une référence à un appareil à proximité.
-     *
-     * @param service
-     * @return
+     * Récupère une référence à un appareil à proximité à partir de ses informations de détection.
      */
     private ARDiscoveryDevice createDiscoveryDevice(ARDiscoveryDeviceService service) {
         ARDiscoveryDevice device = null;
@@ -193,7 +191,6 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
     public void onCommandReceived(ARDeviceController deviceController,
                                   ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey,
                                   ARControllerDictionary elementDictionary) {
-//        Log.d(TAG, "onCommandReceived() called with: commandKey = [" + commandKey + "]");
         if (elementDictionary != null) {
             // if the command received is a battery state changed
             if (commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) {
@@ -220,30 +217,30 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
     public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, ARControllerCodec codec) {
         Log.d(TAG, "configureDecoder() called with: codec = [" + codec + "]");
 
-        mVideoView.configureDecoder(codec);
-        // configure your decoder
-        // return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK if display went well
-        // otherwise, return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_ERROR. In that case,
-        // configDecoderCallback will be called again
-        return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        try {
+            mVideoView.configureDecoder(codec);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "configureDecoder: error while configuring VideoView decoder.", e);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_ERROR;
+        }
     }
 
     @Override
     public ARCONTROLLER_ERROR_ENUM onFrameReceived(ARDeviceController deviceController, ARFrame frame) {
         Log.d(TAG, "onFrameReceived() called with: frame = [" + frame + "]");
 
-        mVideoView.displayFrame(frame);
-
-        // display the frame
-        // return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK if display went well
-        // otherwise, return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_ERROR. In that case,
-        // configDecoderCallback will be called again
-        return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        try {
+            mVideoView.displayFrame(frame);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "onFrameReceived: error while displaying frame.", e);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_ERROR;
+        }
     }
 
     @Override
     public void onFrameTimeout(ARDeviceController deviceController) {
         Log.d(TAG, "onFrameTimeout");
-        // Euh on fait quoi avec ça ?
     }
 }

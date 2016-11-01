@@ -3,4 +3,8 @@
     <string name="wifi_disabled">Wifi is disabled.</string>
     <string name="enable">Enable</string>
     <string name="no_nearby_device">No nearby device.</string>
+    <string name="land">Land</string>
+    <string name="take_off">Take Off</string>
+    <string name="emergency">Emergency</string>
+    <string name="battery_level_indicator">Battery level indicator</string>
 </resources>
