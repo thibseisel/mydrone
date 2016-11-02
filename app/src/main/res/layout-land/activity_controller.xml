@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/activity_controller"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="fr.telecomlille.mydrone.ControllerActivity">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_controller"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="fr.telecomlille.mydrone.ControllerActivity">
 
     <fr.telecomlille.mydrone.view.BebopVideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
 
     <ProgressBar
         android:id="@+id/batteryLevel"
@@ -20,119 +22,118 @@
         android:layout_alignParentBottom="true"
         android:max="100"
         android:minHeight="0dp"
-        tools:progress="90"/>
+        tools:progress="90" />
 
     <ImageButton
         android:id="@+id/btn_takeoff"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_flight_takeoff_24dp"
-        android:tint="@android:color/white"
-        android:layout_alignParentEnd="true"
+        style="@style/AppTheme.ControlButton"
         android:layout_alignParentBottom="true"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"
-        android:contentDescription="@string/take_off"/>
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/take_off"
+        app:srcCompat="@drawable/ic_flight_takeoff_24dp" />
 
     <ImageButton
         android:id="@+id/btn_land"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="64dp"
-        android:minHeight="64dp"
-        android:scaleType="fitCenter"
-        android:tint="@android:color/white"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"
-        app:srcCompat="@drawable/ic_flight_land_24dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_above="@id/btn_takeoff"
         android:layout_alignParentEnd="true"
-        android:contentDescription="@string/land"/>
+        android:contentDescription="@string/land"
+        app:srcCompat="@drawable/ic_flight_land_24dp" />
 
     <Button
         android:id="@+id/btn_emergency"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/emergency"/>
+        android:text="@string/emergency" />
 
     <ImageView
-        android:id="@+id/battery"
+        android:id="@+id/battery_indicator"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_margin="16dp"
         android:layout_alignParentBottom="true"
-        app:srcCompat="@drawable/battery_state_list"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/battery_level_indicator"
         android:tint="@android:color/white"
-        android:contentDescription="@string/battery_level_indicator"/>
+        app:srcCompat="@drawable/battery_state_list" />
 
-    <Button
-        android:id="@+id/btn_turnleft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="turn left"
+    <ImageButton
+        android:id="@+id/btn_turn_left"
+        style="@style/AppTheme.ControlButton"
         android:layout_centerVertical="true"
-        android:layout_marginStart="24dp" />
+        android:layout_marginStart="24dp"
+        android:contentDescription="@string/turn_left"
+        app:srcCompat="@drawable/ic_turn_left_24dp" />
 
-    <Button
-        android:id="@+id/btn_turnright"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="turn right"
-        android:layout_alignBaseline="@+id/btn_turnleft"
-        android:layout_alignBottom="@+id/btn_turnleft"
-        android:layout_toEndOf="@+id/btn_turnleft" />
-
-    <Button
+    <ImageButton
         android:id="@+id/btn_up"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/movement_up"
-        android:layout_marginStart="14dp"
-        android:layout_above="@+id/btn_turnleft"
-        android:layout_toEndOf="@+id/battery" />
+        style="@style/AppTheme.ControlButton"
+        android:layout_above="@+id/btn_turn_left"
+        android:layout_toEndOf="@id/btn_turn_left"
+        android:layout_marginStart="16dp"
+        android:contentDescription="@string/land"
+        app:srcCompat="@drawable/ic_gaz_up_24dp" />
 
-    <Button
+    <ImageButton
+        android:id="@+id/btn_turn_right"
+        style="@style/AppTheme.ControlButton"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/btn_up"
+        android:contentDescription="@string/turn_right"
+        app:srcCompat="@drawable/ic_turn_right_24dp" />
+
+    <ImageButton
         android:id="@+id/btn_down"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/movement_down"
-        android:layout_below="@+id/btn_turnright"
-        android:layout_alignStart="@+id/btn_up" />
+        style="@style/AppTheme.ControlButton"
+        android:layout_below="@+id/btn_turn_left"
+        android:layout_toEndOf="@+id/btn_turn_left"
+        android:contentDescription="@string/movement_down"
+        app:srcCompat="@drawable/ic_gaz_down_24dp" />
 
-    <Button
-        android:id="@+id/btn_moveleft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="move left"
-        android:layout_marginStart="21dp"
-        android:layout_alignBaseline="@+id/btn_turnright"
-        android:layout_alignBottom="@+id/btn_turnright"
-        android:layout_toEndOf="@+id/btn_emergency" />
 
-    <Button
-        android:id="@+id/btn_moveright"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="move right"
+    <ImageButton
+        android:id="@+id/btn_move_left"
+        style="@style/AppTheme.ControlButton"
+        android:layout_toStartOf="@+id/btn_forward"
+        android:contentDescription="@string/move_left"
+        app:srcCompat="@drawable/ic_move_left_24dp" />
+
+    <ImageButton
+        android:id="@+id/btn_move_right"
+        style="@style/AppTheme.ControlButton"
         android:layout_above="@+id/btn_backward"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="25dp" />
+        android:layout_marginEnd="24dp"
+        android:contentDescription="@string/move_right"
+        app:srcCompat="@drawable/ic_move_right_24dp" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_backward"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="backward"
-        android:layout_marginEnd="16dp"
-        android:layout_below="@+id/btn_moveleft"
-        android:layout_toStartOf="@+id/btn_land" />
+        style="@style/AppTheme.ControlButton"
+        android:layout_toStartOf="@+id/btn_move_right"
+        android:contentDescription="@string/backward"
+        app:srcCompat="@drawable/ic_move_backward_24dp" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_forward"
+        style="@style/AppTheme.ControlButton"
+        android:layout_above="@+id/btn_move_left"
+        android:layout_alignStart="@+id/btn_backward"
+        android:contentDescription="@string/forward"
+        app:srcCompat="@drawable/ic_move_forward_24dp" />
+
+    <ImageButton
+        android:id="@+id/btn_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="forward"
-        android:layout_above="@+id/btn_moveleft"
-        android:layout_alignStart="@+id/btn_backward" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/take_photo"
+        android:minHeight="64dp"
+        android:minWidth="64dp"
+        android:scaleType="center"
+        android:tint="@android:color/white"
+        app:srcCompat="@drawable/ic_camera_24dp" />
 </RelativeLayout>

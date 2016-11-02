@@ -50,7 +50,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
 
         mVideoView = (BebopVideoView) findViewById(R.id.videoView);
         mBatteryLevel = (ProgressBar) findViewById(R.id.batteryLevel);
-        mBatteryIndicator = (ImageView) findViewById(R.id.battery);
+        mBatteryIndicator = (ImageView) findViewById(R.id.battery_indicator);
 
         Intent caller = getIntent();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
@@ -96,8 +96,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button upButton = (Button) findViewById(R.id.btn_up);
-        upButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_up).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -118,8 +117,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button downButton = (Button) findViewById(R.id.btn_down);
-        downButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_down).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -140,8 +138,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button turnRightButton = (Button) findViewById(R.id.btn_turnright);
-        turnRightButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_turn_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -162,8 +159,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button turnLeftButton = (Button) findViewById(R.id.btn_turnleft);
-        turnLeftButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_turn_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -184,8 +180,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button forwardButton = (Button) findViewById(R.id.btn_forward);
-        forwardButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_forward).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -208,8 +203,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button backwardButton = (Button) findViewById(R.id.btn_backward);
-        backwardButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_backward).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -232,8 +226,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button moveRightButton = (Button) findViewById(R.id.btn_moveright);
-        moveRightButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_move_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -256,8 +249,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        Button moveLeftButton = (Button) findViewById(R.id.btn_moveleft);
-        moveLeftButton.setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_move_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)

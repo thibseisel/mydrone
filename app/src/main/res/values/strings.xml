@@ -9,4 +9,11 @@
     <string name="battery_level_indicator">Battery level indicator</string>
     <string name="movement_up">Up</string>
     <string name="movement_down">Down</string>
+    <string name="take_photo">Take a photo</string>
+    <string name="forward">Forward</string>
+    <string name="backward">backward</string>
+    <string name="move_right">Move right</string>
+    <string name="move_left">Move left</string>
+    <string name="turn_right">turn right</string>
+    <string name="turn_left">turn left</string>
 </resources>

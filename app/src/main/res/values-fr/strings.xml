@@ -8,6 +8,13 @@
     <string name="emergency">Urgence</string>
     <string name="land">Atterir</string>
     <string name="take_off">Décoller</string>
-    <string name="movement_up">Haut</string>
-    <string name="movement_down">Bas</string>
+    <string name="movement_up">Monter</string>
+    <string name="movement_down">Descendre</string>
+    <string name="take_photo">Prendre une photo</string>
+    <string name="turn_left">Pivoter à gauche</string>
+    <string name="forward">Avancer</string>
+    <string name="backward">Reculer</string>
+    <string name="move_left">Aller à gauche</string>
+    <string name="move_right">Aller à droite</string>
+    <string name="turn_right">Pivoter à droite</string>
 </resources>

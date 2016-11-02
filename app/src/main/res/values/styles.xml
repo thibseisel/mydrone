@@ -17,4 +17,12 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="AppTheme.ControlButton" parent="@style/Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">64dp</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:tint">@android:color/white</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
 </resources>
