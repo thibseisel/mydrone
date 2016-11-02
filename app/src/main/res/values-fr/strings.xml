@@ -8,4 +8,6 @@
     <string name="emergency">Urgence</string>
     <string name="land">Atterir</string>
     <string name="take_off">Décoller</string>
+    <string name="movement_up">Haut</string>
+    <string name="movement_down">Bas</string>
 </resources>

@@ -23,6 +23,7 @@
         <!-- Au besoin, ajouter android:screenOrientation="landscape" -->
         <activity
             android:name=".ControllerActivity"
+            android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen">
         </activity>
 

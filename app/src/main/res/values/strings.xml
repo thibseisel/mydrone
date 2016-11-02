@@ -7,4 +7,6 @@
     <string name="take_off">Take Off</string>
     <string name="emergency">Emergency</string>
     <string name="battery_level_indicator">Battery level indicator</string>
+    <string name="movement_up">Up</string>
+    <string name="movement_down">Down</string>
 </resources>

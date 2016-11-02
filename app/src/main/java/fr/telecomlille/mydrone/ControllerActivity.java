@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
@@ -38,6 +40,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
     private ARDeviceController mDeviceController;
     private BebopVideoView mVideoView;
     private ProgressBar mBatteryLevel;
+    private ImageView mBatteryIndicator;
     private ARCONTROLLER_DEVICE_STATE_ENUM mState;
 
     @Override
@@ -47,6 +50,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
 
         mVideoView = (BebopVideoView) findViewById(R.id.videoView);
         mBatteryLevel = (ProgressBar) findViewById(R.id.batteryLevel);
+        mBatteryIndicator = (ImageView) findViewById(R.id.battery);
 
         Intent caller = getIntent();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
@@ -91,6 +95,191 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 }
             }
         });
+
+        Button upButton = (Button) findViewById(R.id.btn_up);
+        upButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) 50);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        Button downButton = (Button) findViewById(R.id.btn_down);
+        downButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) -50);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        Button turnRightButton = (Button) findViewById(R.id.btn_turnright);
+        turnRightButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 50);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        Button turnLeftButton = (Button) findViewById(R.id.btn_turnleft);
+        turnLeftButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) -50);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        Button forwardButton = (Button) findViewById(R.id.btn_forward);
+        forwardButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 50);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        Button backwardButton = (Button) findViewById(R.id.btn_backward);
+        backwardButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) -50);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        Button moveRightButton = (Button) findViewById(R.id.btn_moveright);
+        moveRightButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 50);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        Button moveLeftButton = (Button) findViewById(R.id.btn_moveleft);
+        moveLeftButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+                    switch(motionEvent.getAction()){
+                        case MotionEvent.ACTION_DOWN:
+                            view.setPressed(true);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) -50);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            view.setPressed(false);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
+                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
+                            break;
+                    }
+                }
+                return true;
+            }
+        });
+
 
     }
 
@@ -200,6 +389,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
 
                     // do what you want with the battery level
                     mBatteryLevel.setProgress(batValue);
+                    // mBatteryIndicator.setImageLevel(batValue);
                 }
             }
         } else if (commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) {

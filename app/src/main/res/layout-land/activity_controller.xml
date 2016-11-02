@@ -65,4 +65,74 @@
         app:srcCompat="@drawable/battery_state_list"
         android:tint="@android:color/white"
         android:contentDescription="@string/battery_level_indicator"/>
+
+    <Button
+        android:id="@+id/btn_turnleft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="turn left"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="24dp" />
+
+    <Button
+        android:id="@+id/btn_turnright"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="turn right"
+        android:layout_alignBaseline="@+id/btn_turnleft"
+        android:layout_alignBottom="@+id/btn_turnleft"
+        android:layout_toEndOf="@+id/btn_turnleft" />
+
+    <Button
+        android:id="@+id/btn_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/movement_up"
+        android:layout_marginStart="14dp"
+        android:layout_above="@+id/btn_turnleft"
+        android:layout_toEndOf="@+id/battery" />
+
+    <Button
+        android:id="@+id/btn_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/movement_down"
+        android:layout_below="@+id/btn_turnright"
+        android:layout_alignStart="@+id/btn_up" />
+
+    <Button
+        android:id="@+id/btn_moveleft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="move left"
+        android:layout_marginStart="21dp"
+        android:layout_alignBaseline="@+id/btn_turnright"
+        android:layout_alignBottom="@+id/btn_turnright"
+        android:layout_toEndOf="@+id/btn_emergency" />
+
+    <Button
+        android:id="@+id/btn_moveright"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="move right"
+        android:layout_above="@+id/btn_backward"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="25dp" />
+
+    <Button
+        android:id="@+id/btn_backward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="backward"
+        android:layout_marginEnd="16dp"
+        android:layout_below="@+id/btn_moveleft"
+        android:layout_toStartOf="@+id/btn_land" />
+
+    <Button
+        android:id="@+id/btn_forward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="forward"
+        android:layout_above="@+id/btn_moveleft"
+        android:layout_alignStart="@+id/btn_backward" />
 </RelativeLayout>
