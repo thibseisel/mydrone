@@ -73,77 +73,78 @@
         android:contentDescription="@string/take_photo"
         app:srcCompat="@drawable/ic_camera_24dp"/>
 
-    <Button
+    <!-- Contrôles -->
+    <ImageButton
         android:id="@+id/btn_yaw_right"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginEnd="24dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_alignParentEnd="false"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:text="@string/movement_right"/>
+        android:layout_marginEnd="24dp"
+        android:contentDescription="@string/movement_right"
+        app:srcCompat="@drawable/ic_turn_right_24dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_roll_left"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="24dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:text="@string/movement_left"/>
+        android:layout_marginStart="24dp"
+        android:contentDescription="@string/movement_left"
+        app:srcCompat="@drawable/ic_move_left_24dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_yaw_left"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_below="@+id/btn_gaz_up"
         android:layout_toLeftOf="@+id/btn_gaz_up"
         android:layout_toStartOf="@+id/btn_gaz_up"
-        android:text="@string/yaw_left"/>
+        android:contentDescription="@string/yaw_left"
+        app:srcCompat="@drawable/ic_turn_left_24dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_roll_right"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_above="@+id/btn_back"
         android:layout_toEndOf="@+id/btn_back"
         android:layout_toRightOf="@+id/btn_back"
-        android:text="@string/movement_right"/>
+        android:contentDescription="@string/movement_right"
+        app:srcCompat="@drawable/ic_move_right_24dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_gaz_up"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_above="@+id/btn_yaw_right"
         android:layout_toLeftOf="@+id/btn_yaw_right"
         android:layout_toStartOf="@+id/btn_yaw_right"
-        android:text="@string/movement_up"/>
+        android:contentDescription="@string/movement_up"
+        app:srcCompat="@drawable/ic_gaz_up_24dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_gaz_down"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_below="@+id/btn_yaw_right"
         android:layout_toEndOf="@+id/btn_yaw_left"
         android:layout_toRightOf="@+id/btn_yaw_left"
-        android:text="@string/movement_down"/>
+        android:contentDescription="@string/movement_down"
+        app:srcCompat="@drawable/ic_gaz_down_24dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_forward"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_alignTop="@+id/btn_gaz_up"
         android:layout_toEndOf="@+id/btn_roll_left"
         android:layout_toRightOf="@+id/btn_roll_left"
-        android:text="@string/movement_forward"/>
+        android:contentDescription="@string/movement_forward"
+        app:srcCompat="@drawable/ic_move_forward_24dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_back"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        style="@style/AppTheme.ControlButton"
         android:layout_below="@+id/btn_roll_left"
         android:layout_toEndOf="@+id/btn_roll_left"
         android:layout_toRightOf="@+id/btn_roll_left"
-        android:text="@string/movement_back"/>
+        android:contentDescription="@string/movement_back"
+        app:srcCompat="@drawable/ic_move_back_24dp"/>
 </RelativeLayout>
