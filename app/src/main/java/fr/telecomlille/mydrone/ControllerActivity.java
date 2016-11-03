@@ -2,6 +2,8 @@ package fr.telecomlille.mydrone;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -31,16 +33,17 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceNetService;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryException;
 
+import java.lang.ref.WeakReference;
+
 import fr.telecomlille.mydrone.view.BebopVideoView;
 
 public class ControllerActivity extends AppCompatActivity implements ARDeviceControllerListener,
         ARDeviceControllerStreamListener {
 
     private static final String TAG = "ControllerActivity";
+    private BatteryUpdateHandler mHandler;
     private ARDeviceController mDeviceController;
     private BebopVideoView mVideoView;
-    private ProgressBar mBatteryLevel;
-    private ImageView mBatteryIndicator;
     private ARCONTROLLER_DEVICE_STATE_ENUM mState;
 
     @Override
@@ -49,8 +52,10 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         setContentView(R.layout.activity_controller);
 
         mVideoView = (BebopVideoView) findViewById(R.id.videoView);
-        mBatteryLevel = (ProgressBar) findViewById(R.id.batteryLevel);
-        mBatteryIndicator = (ImageView) findViewById(R.id.battery_indicator);
+
+        mHandler = new BatteryUpdateHandler(
+                (ImageView) findViewById(R.id.battery_indicator),
+                (ProgressBar) findViewById(R.id.batteryLevel));
 
         Intent caller = getIntent();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
@@ -203,7 +208,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
             }
         });
 
-        findViewById(R.id.btn_backward).setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btn_back).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
@@ -379,9 +384,10 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 if (args != null) {
                     int batValue = (int) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED_PERCENT);
 
-                    // do what you want with the battery level
-                    mBatteryLevel.setProgress(batValue);
-                    // mBatteryIndicator.setImageLevel(batValue);
+                    // Mise à jour du niveau de batterie
+                    Message msg = Message.obtain();
+                    msg.arg1 = batValue;
+                    mHandler.sendMessage(msg);
                 }
             }
         } else if (commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) {
@@ -424,5 +430,32 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
     @Override
     public void onFrameTimeout(ARDeviceController deviceController) {
         Log.d(TAG, "onFrameTimeout");
+    }
+
+    /**
+     * Effectue la mise à jour de l'indicateur du niveau de batterie sur le Thread UI.
+     */
+    static class BatteryUpdateHandler extends Handler {
+
+        final WeakReference<ImageView> mBatteryIndicatorRef;
+        final WeakReference<ProgressBar> mBatteryBarRef;
+
+        BatteryUpdateHandler(ImageView batteryIndicator, ProgressBar batteryBar) {
+            mBatteryIndicatorRef = new WeakReference<>(batteryIndicator);
+            mBatteryBarRef = new WeakReference<>(batteryBar);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            int batteryLevel = msg.arg1;
+            final ImageView imageView = mBatteryIndicatorRef.get();
+            final ProgressBar progressBar = mBatteryBarRef.get();
+
+            if (imageView != null && progressBar != null) {
+                imageView.setImageLevel(batteryLevel);
+                progressBar.setProgress(batteryLevel);
+            }
+        }
     }
 }
