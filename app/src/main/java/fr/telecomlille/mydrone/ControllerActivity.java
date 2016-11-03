@@ -1,6 +1,5 @@
 package fr.telecomlille.mydrone;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -8,8 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -41,6 +38,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         ARDeviceControllerStreamListener {
 
     private static final String TAG = "ControllerActivity";
+
     private BatteryUpdateHandler mHandler;
     private ARDeviceController mDeviceController;
     private BebopVideoView mVideoView;
@@ -52,62 +50,60 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         setContentView(R.layout.activity_controller);
 
         mVideoView = (BebopVideoView) findViewById(R.id.videoView);
-
         mHandler = new BatteryUpdateHandler(
                 (ImageView) findViewById(R.id.battery_indicator),
                 (ProgressBar) findViewById(R.id.batteryLevel));
 
-        Intent caller = getIntent();
-        ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
-
+        ARDiscoveryDeviceService deviceService = getIntent()
+                .getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
         ARDiscoveryDevice device = createDiscoveryDevice(deviceService);
-        Log.d(TAG, "My device: " + device);
 
         try {
             mDeviceController = new ARDeviceController(device);
-
+            initIHM();
         } catch (ARControllerException e) {
             e.printStackTrace();
         }
+    }
 
-        ImageButton takeoffButton = (ImageButton) findViewById(R.id.btn_takeoff);
-        takeoffButton.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Attribue un comportement aux boutons de pilotage.
+     */
+    private void initIHM() {
+        findViewById(R.id.btn_takeoff).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED.equals(getPilotingState())) {
                     mDeviceController.getFeatureARDrone3().sendPilotingTakeOff();
                 }
             }
         });
-        ImageButton landButton = (ImageButton) findViewById(R.id.btn_land);
-        landButton.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_land).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
                     mDeviceController.getFeatureARDrone3().sendPilotingLanding();
                 }
             }
         });
-        Button emergencyButton = (Button) findViewById(R.id.btn_emergency);
-        emergencyButton.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_emergency).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mDeviceController != null && mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) {
+                if (isDeviceControllerReady()) {
                     mDeviceController.getFeatureARDrone3().sendPilotingEmergency();
                 }
             }
         });
-
         findViewById(R.id.btn_gaz_up).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) 50);
@@ -121,14 +117,13 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
         findViewById(R.id.btn_gaz_down).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) -50);
@@ -142,14 +137,13 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
         findViewById(R.id.btn_yaw_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 50);
@@ -163,14 +157,13 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
         findViewById(R.id.btn_yaw_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) -50);
@@ -184,14 +177,13 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
         findViewById(R.id.btn_forward).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 50);
@@ -207,14 +199,13 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
         findViewById(R.id.btn_back).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) -50);
@@ -230,14 +221,13 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
         findViewById(R.id.btn_roll_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 50);
@@ -253,14 +243,13 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
         findViewById(R.id.btn_roll_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                if (isDeviceControllerReady()
                         && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
                         || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
+                    switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             view.setPressed(true);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) -50);
@@ -276,8 +265,15 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
-
-
+        findViewById(R.id.btn_photo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mDeviceController != null
+                        && mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) {
+                    mDeviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
+                }
+            }
+        });
     }
 
     @Override
@@ -430,6 +426,11 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
     @Override
     public void onFrameTimeout(ARDeviceController deviceController) {
         Log.d(TAG, "onFrameTimeout");
+    }
+
+    private boolean isDeviceControllerReady() {
+        return mDeviceController != null && mState.equals(
+                ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING);
     }
 
     /**
