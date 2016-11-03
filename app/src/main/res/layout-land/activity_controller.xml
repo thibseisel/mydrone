@@ -85,16 +85,6 @@
         app:srcCompat="@drawable/ic_turn_right_24dp"/>
 
     <ImageButton
-        android:id="@+id/btn_roll_left"
-        style="@style/AppTheme.ControlButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="24dp"
-        android:contentDescription="@string/movement_left"
-        app:srcCompat="@drawable/ic_move_left_24dp"/>
-
-    <ImageButton
         android:id="@+id/btn_yaw_left"
         style="@style/AppTheme.ControlButton"
         android:layout_below="@+id/btn_gaz_up"
@@ -102,15 +92,6 @@
         android:layout_toStartOf="@+id/btn_gaz_up"
         android:contentDescription="@string/yaw_left"
         app:srcCompat="@drawable/ic_turn_left_24dp"/>
-
-    <ImageButton
-        android:id="@+id/btn_roll_right"
-        style="@style/AppTheme.ControlButton"
-        android:layout_above="@+id/btn_back"
-        android:layout_toEndOf="@+id/btn_back"
-        android:layout_toRightOf="@+id/btn_back"
-        android:contentDescription="@string/movement_right"
-        app:srcCompat="@drawable/ic_move_right_24dp"/>
 
     <ImageButton
         android:id="@+id/btn_gaz_up"
@@ -130,21 +111,4 @@
         android:contentDescription="@string/movement_down"
         app:srcCompat="@drawable/ic_gaz_down_24dp"/>
 
-    <ImageButton
-        android:id="@+id/btn_forward"
-        style="@style/AppTheme.ControlButton"
-        android:layout_alignTop="@+id/btn_gaz_up"
-        android:layout_toEndOf="@+id/btn_roll_left"
-        android:layout_toRightOf="@+id/btn_roll_left"
-        android:contentDescription="@string/movement_forward"
-        app:srcCompat="@drawable/ic_move_forward_24dp"/>
-
-    <ImageButton
-        android:id="@+id/btn_back"
-        style="@style/AppTheme.ControlButton"
-        android:layout_below="@+id/btn_roll_left"
-        android:layout_toEndOf="@+id/btn_roll_left"
-        android:layout_toRightOf="@+id/btn_roll_left"
-        android:contentDescription="@string/movement_back"
-        app:srcCompat="@drawable/ic_move_back_24dp"/>
 </RelativeLayout>

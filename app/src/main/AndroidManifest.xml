@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="fr.telecomlille.mydrone"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fr.telecomlille.mydrone">
 
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.sensor.gyroscope"
+        android:required="true" />
 
     <application
         android:name=".MyApplication"
@@ -14,9 +21,9 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -24,14 +31,17 @@
         <activity
             android:name=".ControllerActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen" />
 
         <receiver android:name=".MainActivity$WifiStateChangedReceiver">
             <intent-filter>
-                <action android:name="android.net.wifi.STATE_CHANGED"/>
+                <action android:name="android.net.wifi.STATE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".AccelerometerActivity"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

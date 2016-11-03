@@ -1,6 +1,11 @@
 package fr.telecomlille.mydrone;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
@@ -38,13 +44,15 @@ import java.lang.ref.WeakReference;
 import fr.telecomlille.mydrone.view.BebopVideoView;
 
 public class ControllerActivity extends AppCompatActivity implements ARDeviceControllerListener,
-        ARDeviceControllerStreamListener {
+        ARDeviceControllerStreamListener, SensorEventListener {
 
     private static final String TAG = "ControllerActivity";
     private BatteryUpdateHandler mHandler;
     private ARDeviceController mDeviceController;
     private BebopVideoView mVideoView;
     private ARCONTROLLER_DEVICE_STATE_ENUM mState;
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,98 +186,6 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                         case MotionEvent.ACTION_UP:
                             view.setPressed(false);
                             mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 0);
-                            break;
-                    }
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.btn_forward).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
-                            break;
-                    }
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.btn_back).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) -50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
-                            break;
-                    }
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.btn_roll_right).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
-                            break;
-                    }
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.btn_roll_left).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch(motionEvent.getAction()){
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) -50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
                             break;
                     }
                 }
@@ -430,6 +346,17 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
     @Override
     public void onFrameTimeout(ARDeviceController deviceController) {
         Log.d(TAG, "onFrameTimeout");
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 
     /**

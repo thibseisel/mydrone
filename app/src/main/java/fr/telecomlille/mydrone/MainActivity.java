@@ -14,6 +14,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.AdapterView;
@@ -87,6 +89,21 @@ public class MainActivity extends AppCompatActivity
         unregisterReceiver(mWifiStateReceiver);
         closeServices();
         unregisterReceivers();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (R.id.action_accelero == item.getItemId()) {
+            Intent acceleroActivity = new Intent(this, AccelerometerActivity.class);
+            startActivity(acceleroActivity);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
