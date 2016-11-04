@@ -1,118 +1,131 @@
 package fr.telecomlille.mydrone;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
-import com.parrot.arsdk.arcontroller.ARCONTROLLER_DICTIONARY_KEY_ENUM;
-import com.parrot.arsdk.arcontroller.ARCONTROLLER_ERROR_ENUM;
-import com.parrot.arsdk.arcontroller.ARControllerArgumentDictionary;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
-import com.parrot.arsdk.arcontroller.ARControllerDictionary;
-import com.parrot.arsdk.arcontroller.ARControllerException;
-import com.parrot.arsdk.arcontroller.ARDeviceController;
-import com.parrot.arsdk.arcontroller.ARDeviceControllerListener;
-import com.parrot.arsdk.arcontroller.ARDeviceControllerStreamListener;
-import com.parrot.arsdk.arcontroller.ARFeatureARDrone3;
-import com.parrot.arsdk.arcontroller.ARFeatureCommon;
 import com.parrot.arsdk.arcontroller.ARFrame;
-import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDevice;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceNetService;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryException;
 
-import java.lang.ref.WeakReference;
-
+import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.BebopVideoView;
 
-public class ControllerActivity extends AppCompatActivity implements ARDeviceControllerListener,
-        ARDeviceControllerStreamListener {
+public class ControllerActivity extends AppCompatActivity implements BebopDrone.Listener {
+
+    public static final int LEVEL_LAND = 1;
+    public static final int LEVEL_TAKEOFF = 0;
 
     private static final String TAG = "ControllerActivity";
-
-    private BatteryUpdateHandler mHandler;
-    private ARDeviceController mDeviceController;
     private BebopVideoView mVideoView;
-    private ARCONTROLLER_DEVICE_STATE_ENUM mState;
+    private BebopDrone mDrone;
+    private ImageView mBatteryIndicator;
+    private ProgressBar mBatteryBar;
+    private ImageButton mTakeoffLandButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controller);
 
-        mVideoView = (BebopVideoView) findViewById(R.id.videoView);
-        mHandler = new BatteryUpdateHandler(
-                (ImageView) findViewById(R.id.battery_indicator),
-                (ProgressBar) findViewById(R.id.batteryLevel));
-
         ARDiscoveryDeviceService deviceService = getIntent()
                 .getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
-        ARDiscoveryDevice device = createDiscoveryDevice(deviceService);
 
-        try {
-            mDeviceController = new ARDeviceController(device);
-            initIHM();
-        } catch (ARControllerException e) {
-            e.printStackTrace();
+        mDrone = new BebopDrone(this, deviceService);
+        mDrone.addListener(this);
+
+        initIHM();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mDrone != null && !ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
+                .equals(mDrone.getConnectionState())) {
+            if (!mDrone.connect()) {
+                Toast.makeText(this, "Error while connecting to the drone.",
+                        Toast.LENGTH_LONG).show();
+            }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mDrone != null) {
+            if (!mDrone.disconnect()) {
+                Toast.makeText(this, "error while disconnecting to the drone.",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDrone.dispose();
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            mDrone.takePicture();
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     /**
      * Attribue un comportement aux boutons de pilotage.
      */
     private void initIHM() {
-        findViewById(R.id.btn_takeoff).setOnClickListener(new View.OnClickListener() {
+        mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
+        mVideoView = (BebopVideoView) findViewById(R.id.videoView);
+        mBatteryIndicator = (ImageView) findViewById(R.id.battery_indicator);
+        mBatteryBar = (ProgressBar) findViewById(R.id.batteryLevel);
+
+        mTakeoffLandButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isDeviceControllerReady()
-                        && ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED.equals(getPilotingState())) {
-                    mDeviceController.getFeatureARDrone3().sendPilotingTakeOff();
-                }
-            }
-        });
-        findViewById(R.id.btn_land).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    mDeviceController.getFeatureARDrone3().sendPilotingLanding();
+                switch (mDrone.getFlyingState()) {
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                        mDrone.takeOff();
+                        break;
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                        mDrone.land();
+                        break;
                 }
             }
         });
         findViewById(R.id.btn_emergency).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isDeviceControllerReady()) {
-                    mDeviceController.getFeatureARDrone3().sendPilotingEmergency();
-                }
+                mDrone.emergency();
             }
         });
         findViewById(R.id.btn_gaz_up).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) 50);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setGaz((byte) 50);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setGaz((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -120,19 +133,15 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_gaz_down).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) -50);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setGaz((byte) -50);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setGaz((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -140,19 +149,15 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_yaw_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 50);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setYaw((byte) 50);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setYaw((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -160,19 +165,15 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_yaw_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) -50);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setYaw((byte) -50);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setYaw((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -180,21 +181,17 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_forward).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setPitch((byte) 50);
+                        mDrone.setFlag((byte) 1);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setPitch((byte) 0);
+                        mDrone.setFlag((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -202,21 +199,17 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_back).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) -50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setPitch((byte) -50);
+                        mDrone.setFlag((byte) 1);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setPitch((byte) 0);
+                        mDrone.setFlag((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -224,21 +217,17 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_roll_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setRoll((byte) 50);
+                        mDrone.setFlag((byte) 1);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setRoll((byte) 0);
+                        mDrone.setFlag((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -246,21 +235,17 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_roll_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isDeviceControllerReady()
-                        && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
-                        || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
-                    switch (motionEvent.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setPressed(true);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) -50);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            view.setPressed(false);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
-                            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
-                            break;
-                    }
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mDrone.setRoll((byte) -50);
+                        mDrone.setFlag((byte) 1);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        mDrone.setRoll((byte) 0);
+                        mDrone.setFlag((byte) 0);
+                        break;
                 }
                 return true;
             }
@@ -268,195 +253,65 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         findViewById(R.id.btn_photo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mDeviceController != null
-                        && mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) {
-                    mDeviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
-                }
+                mDrone.takePicture();
             }
         });
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mDeviceController.addListener(this);
-        mDeviceController.addStreamListener(this);
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.start();
-        Log.d(TAG, "onStart: error=" + error);
+    public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
+        Log.d(TAG, "onDroneConnectionChanged() called with: state = [" + state + "]");
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mDeviceController.removeListener(this);
-        mDeviceController.removeStreamListener(this);
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.stop();
-        Log.d(TAG, "onStop: error=" + error);
-    }
-
-    /**
-     * Récupère une référence à un appareil à proximité à partir de ses informations de détection.
-     */
-    private ARDiscoveryDevice createDiscoveryDevice(ARDiscoveryDeviceService service) {
-        ARDiscoveryDevice device = null;
-        // On a un peu allégé ce if, en vrai.
-        if (service != null) {
-            try {
-                device = new ARDiscoveryDevice();
-                ARDiscoveryDeviceNetService netDeviceService = (ARDiscoveryDeviceNetService) service.getDevice();
-                device.initWifi(ARDISCOVERY_PRODUCT_ENUM.ARDISCOVERY_PRODUCT_ARDRONE, netDeviceService.getName(),
-                        netDeviceService.getIp(), netDeviceService.getPort());
-            } catch (ARDiscoveryException e) {
-                e.printStackTrace();
-                Log.e(TAG, "Error: " + e.getError());
-            }
-        }
-        return device;
-    }
-
-    private ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM getPilotingState() {
-        ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM flyingState = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_UNKNOWN_ENUM_VALUE;
-        if (mDeviceController != null) {
-            try {
-                ARControllerDictionary dict = mDeviceController.getCommandElements(ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED);
-                if (dict != null) {
-                    ARControllerArgumentDictionary<Object> args = dict.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                    if (args != null) {
-                        Integer flyingStateInt = (Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE);
-                        flyingState = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.getFromValue(flyingStateInt);
-                    }
-                }
-            } catch (ARControllerException e) {
-                e.printStackTrace();
-            }
-        }
-        return flyingState;
+    public void onBatteryChargeChanged(int batteryPercentage) {
+        mBatteryBar.setProgress(batteryPercentage);
+        mBatteryIndicator.setImageLevel(batteryPercentage);
     }
 
     @Override
-    public void onStateChanged(ARDeviceController deviceController,
-                               ARCONTROLLER_DEVICE_STATE_ENUM newState,
-                               ARCONTROLLER_ERROR_ENUM error) {
-        mState = newState;
-        switch (mState) {
-            case ARCONTROLLER_DEVICE_STATE_RUNNING:
-                Log.d(TAG, "State changed: RUNNING");
-                deviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
+    public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
+        Log.d(TAG, "onPilotingStateChanged() called with: state = [" + state + "]");
+        switch (state) {
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                mTakeoffLandButton.setImageLevel(LEVEL_TAKEOFF);
                 break;
-            case ARCONTROLLER_DEVICE_STATE_STOPPED:
-                Log.d(TAG, "State changed: STOPPED");
-                deviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 0);
-                break;
-            case ARCONTROLLER_DEVICE_STATE_STARTING:
-                Log.d(TAG, "State changed: STARTING");
-                break;
-            case ARCONTROLLER_DEVICE_STATE_STOPPING:
-                Log.d(TAG, "State changed: STOPPING");
-                break;
-            default:
-                Log.e(TAG, "State changed: UNKNOWN");
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                mTakeoffLandButton.setImageLevel(LEVEL_LAND);
                 break;
         }
     }
 
     @Override
-    public void onExtensionStateChanged(ARDeviceController deviceController,
-                                        ARCONTROLLER_DEVICE_STATE_ENUM newState,
-                                        ARDISCOVERY_PRODUCT_ENUM product, String name,
-                                        ARCONTROLLER_ERROR_ENUM error) {
-        Log.d(TAG, "onExtensionStateChanged() called with: deviceController = ["
-                + deviceController + "], newState = [" + newState + "], product = ["
-                + product + "], name = [" + name + "], error = [" + error + "]");
+    public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+        Toast.makeText(this, R.string.picture_saved, Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onCommandReceived(ARDeviceController deviceController,
-                                  ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey,
-                                  ARControllerDictionary elementDictionary) {
-        if (elementDictionary != null) {
-            // if the command received is a battery state changed
-            if (commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) {
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if (args != null) {
-                    int batValue = (int) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED_PERCENT);
-
-                    // Mise à jour du niveau de batterie
-                    Message msg = Message.obtain();
-                    msg.arg1 = batValue;
-                    mHandler.sendMessage(msg);
-                }
-            }
-        } else if (commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) {
-            ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-            if (args != null) {
-                Integer flyingStateInt = (Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE);
-                ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM flyingState = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.getFromValue(flyingStateInt);
-            }
-        } else {
-            Log.e(TAG, "elementDictionary is null");
-        }
+    public void configureDecoder(ARControllerCodec codec) {
+        //noinspection WrongThread
+        mVideoView.configureDecoder(codec);
     }
 
     @Override
-    public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, ARControllerCodec codec) {
-        Log.d(TAG, "configureDecoder() called with: codec = [" + codec + "]");
-
-        try {
-            mVideoView.configureDecoder(codec);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "configureDecoder: error while configuring VideoView decoder.", e);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_ERROR;
-        }
+    public void onFrameReceived(ARFrame frame) {
+        //noinspection WrongThread
+        mVideoView.displayFrame(frame);
     }
 
     @Override
-    public ARCONTROLLER_ERROR_ENUM onFrameReceived(ARDeviceController deviceController, ARFrame frame) {
-        Log.d(TAG, "onFrameReceived() called with: frame = [" + frame + "]");
-
-        try {
-            mVideoView.displayFrame(frame);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "onFrameReceived: error while displaying frame.", e);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_ERROR;
-        }
+    public void onMatchingMediasFound(int nbMedias) {
+        Log.d(TAG, "onMatchingMediasFound() called with: nbMedias = [" + nbMedias + "]");
     }
 
     @Override
-    public void onFrameTimeout(ARDeviceController deviceController) {
-        Log.d(TAG, "onFrameTimeout");
+    public void onDownloadProgressed(String mediaName, int progress) {
+        Log.d(TAG, "onDownloadProgressed() called with: mediaName = [" + mediaName + "], progress = [" + progress + "]");
     }
 
-    private boolean isDeviceControllerReady() {
-        return mDeviceController != null && mState.equals(
-                ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING);
-    }
-
-    /**
-     * Effectue la mise à jour de l'indicateur du niveau de batterie sur le Thread UI.
-     */
-    static class BatteryUpdateHandler extends Handler {
-
-        final WeakReference<ImageView> mBatteryIndicatorRef;
-        final WeakReference<ProgressBar> mBatteryBarRef;
-
-        BatteryUpdateHandler(ImageView batteryIndicator, ProgressBar batteryBar) {
-            mBatteryIndicatorRef = new WeakReference<>(batteryIndicator);
-            mBatteryBarRef = new WeakReference<>(batteryBar);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            int batteryLevel = msg.arg1;
-            final ImageView imageView = mBatteryIndicatorRef.get();
-            final ProgressBar progressBar = mBatteryBarRef.get();
-
-            if (imageView != null && progressBar != null) {
-                imageView.setImageLevel(batteryLevel);
-                progressBar.setProgress(batteryLevel);
-            }
-        }
+    @Override
+    public void onDownloadComplete(String mediaName) {
+        Log.d(TAG, "onDownloadComplete() called with: mediaName = [" + mediaName + "]");
     }
 }

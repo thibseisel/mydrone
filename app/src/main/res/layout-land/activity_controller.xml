@@ -38,20 +38,12 @@
 
     <!-- Décollage et atterissage -->
     <ImageButton
-        android:id="@+id/btn_takeoff"
+        android:id="@+id/btn_takeoff_land"
         style="@style/AppTheme.ControlButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:contentDescription="@string/take_off"
-        app:srcCompat="@drawable/ic_flight_takeoff_24dp"/>
-
-    <ImageButton
-        android:id="@+id/btn_land"
-        style="@style/AppTheme.ControlButton"
-        android:layout_above="@+id/btn_takeoff"
-        android:layout_alignParentEnd="true"
-        android:contentDescription="@string/land"
-        app:srcCompat="@drawable/ic_flight_land_24dp"/>
+        app:srcCompat="@drawable/takeoff_land"/>
 
     <!-- Atterrissage d'urgence -->
     <Button

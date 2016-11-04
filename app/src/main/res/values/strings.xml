@@ -16,4 +16,5 @@
     <string name="movement_left">Left</string>
     <string name="yaw_right">Right</string>
     <string name="yaw_left">Left</string>
+    <string name="picture_saved">Picture saved</string>
 </resources>

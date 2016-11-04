@@ -460,7 +460,6 @@ public class BebopDrone {
             listener.onMatchingMediasFound(nbMedias);
         }
     }
-    //endregion notify listener block
 
     private void notifyDownloadProgressed(String mediaName, int progress) {
         List<Listener> listenersCpy = new ArrayList<>(mListeners);
@@ -475,6 +474,7 @@ public class BebopDrone {
             listener.onDownloadComplete(mediaName);
         }
     }
+    //endregion notify listener block
 
     public interface Listener {
         /**

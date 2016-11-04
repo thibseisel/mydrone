@@ -17,4 +17,5 @@
     <string name="movement_left">Gauche</string>
     <string name="movement_right">Droite</string>
     <string name="yaw_right">Droite</string>
+    <string name="picture_saved">Photo sauvegardée</string>
 </resources>
