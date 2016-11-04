@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -64,6 +65,9 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         mHandler = new BatteryUpdateHandler(
                 (ImageView) findViewById(R.id.battery_indicator),
                 (ProgressBar) findViewById(R.id.batteryLevel));
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
 
         Intent caller = getIntent();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
@@ -192,8 +196,18 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
                 return true;
             }
         });
+    }
 
-
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        // Prendre une photo avec le bouton "Volume bas"
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (mDeviceController != null) {
+                mDeviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
+                return true;
+            }
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
@@ -202,6 +216,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         mDeviceController.addListener(this);
         mDeviceController.addStreamListener(this);
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.start();
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         Log.d(TAG, "onStart: error=" + error);
     }
 
@@ -211,6 +226,7 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
         mDeviceController.removeListener(this);
         mDeviceController.removeStreamListener(this);
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.stop();
+        mSensorManager.unregisterListener(this, mSensor);
         Log.d(TAG, "onStop: error=" + error);
     }
 
@@ -350,7 +366,62 @@ public class ControllerActivity extends AppCompatActivity implements ARDeviceCon
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        float[] linear_acceleration = new float[3];
+        linear_acceleration[0] = sensorEvent.values[0];
+        linear_acceleration[1] = sensorEvent.values[1];
+        linear_acceleration[2] = sensorEvent.values[2];
 
+        if (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)
+                && (ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING.equals(getPilotingState())
+                || ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING.equals(getPilotingState()))) {
+            mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
+
+            //ARRIERE DROITE
+            if ((linear_acceleration[0] >= 5) && (linear_acceleration[1] >= 1)) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) -20);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 20);
+            }
+            //AVANT DROITE
+            else if ((linear_acceleration[0] <= -0.5) && (linear_acceleration[1] >= 1)) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 20);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 20);
+            }
+            //ARRIERE GAUCHE
+            else if ((linear_acceleration[0] >= 5) && (linear_acceleration[1] <= -1)) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) -20);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) -20);
+            }
+            //AVANT GAUCHE
+            else if ((linear_acceleration[0] <= -0.5) && (linear_acceleration[1] <= -1)) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 20);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) -20);
+            }
+            //ARRIERE
+            else if (linear_acceleration[0] >= 5) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) -20);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
+            }
+            //AVANT
+            else if (linear_acceleration[0] <= -0.5) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 20);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
+            }
+            //DROITE
+            else if (linear_acceleration[1] >= 2) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 20);
+            }
+            //GAUCHE
+            else if (linear_acceleration[1] <= -2) {
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) -20);
+            }
+            else{
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) 0);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) 0);
+                mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
+            }
+        }
 
     }
 

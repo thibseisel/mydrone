@@ -19,7 +19,6 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
 
     private int mFrameCount;
     private float[] linear_acceleration = new float[3];
-    private float[] gravity = new float[3];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

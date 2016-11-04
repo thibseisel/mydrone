@@ -30,28 +30,10 @@
         android:id="@+id/battery_indicator"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
         android:contentDescription="@string/battery_level_indicator"
         android:tint="@android:color/white"
         app:srcCompat="@drawable/battery_state_list"/>
-
-    <!-- Décollage et atterissage -->
-    <ImageButton
-        android:id="@+id/btn_takeoff"
-        style="@style/AppTheme.ControlButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:contentDescription="@string/take_off"
-        app:srcCompat="@drawable/ic_flight_takeoff_24dp"/>
-
-    <ImageButton
-        android:id="@+id/btn_land"
-        style="@style/AppTheme.ControlButton"
-        android:layout_above="@+id/btn_takeoff"
-        android:layout_alignParentEnd="true"
-        android:contentDescription="@string/land"
-        app:srcCompat="@drawable/ic_flight_land_24dp"/>
 
     <!-- Atterrissage d'urgence -->
     <Button
@@ -59,19 +41,9 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:text="@string/emergency"
         tools:ignore="RelativeOverlap"/>
-
-    <!-- Prendre une photo -->
-    <ImageButton
-        android:id="@+id/btn_photo"
-        style="@style/AppTheme.ControlButton"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/take_photo"
-        app:srcCompat="@drawable/ic_camera_24dp"/>
 
     <!-- Contrôles -->
     <ImageButton
@@ -80,35 +52,52 @@
         android:layout_alignParentEnd="false"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="24dp"
         android:contentDescription="@string/movement_right"
         app:srcCompat="@drawable/ic_turn_right_24dp"/>
 
     <ImageButton
         android:id="@+id/btn_yaw_left"
         style="@style/AppTheme.ControlButton"
-        android:layout_below="@+id/btn_gaz_up"
-        android:layout_toLeftOf="@+id/btn_gaz_up"
-        android:layout_toStartOf="@+id/btn_gaz_up"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
         android:contentDescription="@string/yaw_left"
         app:srcCompat="@drawable/ic_turn_left_24dp"/>
 
     <ImageButton
         android:id="@+id/btn_gaz_up"
         style="@style/AppTheme.ControlButton"
-        android:layout_above="@+id/btn_yaw_right"
-        android:layout_toLeftOf="@+id/btn_yaw_right"
-        android:layout_toStartOf="@+id/btn_yaw_right"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@id/battery_indicator"
         android:contentDescription="@string/movement_up"
-        app:srcCompat="@drawable/ic_gaz_up_24dp"/>
+        app:srcCompat="@drawable/ic_gaz_up_24dp"
+        android:background="@drawable/button_gradient_down" />
 
     <ImageButton
         android:id="@+id/btn_gaz_down"
         style="@style/AppTheme.ControlButton"
-        android:layout_below="@+id/btn_yaw_right"
-        android:layout_toEndOf="@+id/btn_yaw_left"
-        android:layout_toRightOf="@+id/btn_yaw_left"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_above="@id/batteryLevel"
         android:contentDescription="@string/movement_down"
+        android:background="@drawable/button_gradient_up"
         app:srcCompat="@drawable/ic_gaz_down_24dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_land"
+        style="@style/AppTheme.ControlButton"
+        android:contentDescription="@string/land"
+        app:srcCompat="@drawable/ic_flight_land_24dp"
+        android:layout_alignParentEnd="true" />
+
+    <!-- Décollage et atterissage -->
+    <ImageButton
+        android:id="@+id/btn_takeoff"
+        style="@style/AppTheme.ControlButton"
+        android:contentDescription="@string/take_off"
+        android:layout_toLeftOf="@id/btn_land"
+        app:srcCompat="@drawable/ic_flight_takeoff_24dp"/>
+
 
 </RelativeLayout>
