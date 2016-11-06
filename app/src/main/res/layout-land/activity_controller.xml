@@ -56,15 +56,6 @@
         android:text="@string/emergency"
         tools:ignore="RelativeOverlap"/>
 
-    <!-- Prendre une photo -->
-    <ImageButton
-        android:id="@+id/btn_photo"
-        style="@style/AppTheme.ControlButton"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/take_photo"
-        app:srcCompat="@drawable/ic_camera_24dp"/>
-
     <!-- Contrôles -->
     <ImageButton
         android:id="@+id/btn_yaw_right"

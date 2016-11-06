@@ -36,9 +36,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Classe de contrôle du drône Bebop.
+ * Cette classe permet de contrôler un drône de type Bebop.
+ * <p>
+ * Avant toute chose, il faut se connecter au drône via {@link #connect()}. De la même manière,
+ * {@link #disconnect()} met fin à la connexion.
+ * </p><p>
+ * Pour recevoir les évènements liés aux changements d'état du drône
+ * (tels que le niveau de batterie, l'état du pilotage et le flux vidéo en temps réel),
+ * il est nécessaire d'limplémenter {@link BebopDrone.Listener}, puis de souscrire aux évènements
+ * via {@link #addListener(Listener)}.
+ * </p><p>
+ * Une fois l'utilisation de cet objet terminée, il faut appeler {@link #dispose()}
+ * pour libérer les ressources.
+ * </p>
  */
-@SuppressWarnings("unused")
 public class BebopDrone {
 
     private static final String TAG = "BebopDrone";
@@ -179,10 +190,14 @@ public class BebopDrone {
     };
 
     /**
-     * Initialise la connexion distante avec le drône.
+     * Construit un nouvelle instance d'un objet permettant de contrôler un drône Bebop à distance.
+     * Pour établir la connexion, il est nécessaire d'appeler {@link #connect()},
+     * puis éventuellement de souscrire aux évènements produits par le drône via
+     * {@link #addListener(Listener)}.
      *
-     * @param context
-     * @param deviceService
+     * @param context       contexte courant
+     * @param deviceService les données associées au drône lors de sa découverte.
+     *                      Il doit s'agit d'un drône Bebop.
      */
     public BebopDrone(Context context, @NonNull ARDiscoveryDeviceService deviceService) {
 
@@ -224,25 +239,41 @@ public class BebopDrone {
         }
     }
 
+    /**
+     * Libère les ressources utilisées par cet objet.
+     * Cette méthode doit être appelée lorsque l'objet n'est plus utilisé.
+     */
     public void dispose() {
         if (mDeviceController != null)
             mDeviceController.dispose();
     }
 
+    /**
+     * Souscrit aux évènements émis par le drône, tels que les changements d'état de la connexion,
+     * du pilotage, du niveau de batterie, ainsi que la réception du flux vidéo en temps réel.
+     *
+     * @param listener objet client souhaitant recevoir les évènements du drône
+     */
     public void addListener(Listener listener) {
         mListeners.add(listener);
     }
 
+    /**
+     * Se désabonne des évènements émis le drône.
+     *
+     * @param listener objet client souhaitant ne plus recevoir les évènements du drône
+     */
     public void removeListener(Listener listener) {
         mListeners.remove(listener);
     }
 
     /**
-     * Connect to the drone
+     * Etablit la connexion distante avec le drône.
      *
-     * @return true if operation was successful.
-     * Returning true doesn't mean that device is connected.
-     * You can be informed of the actual connection through {@link Listener#onDroneConnectionChanged}
+     * @return true si cette opération s'est déroulée correctement.
+     * La valeur de retour true n'indique par forcément que la connexion a été établie avec succès.
+     * Pour connaitre l'état actuel de la connexion avec le drône,
+     * se référer à la méthode {@link Listener#onDroneConnectionChanged}.
      */
     public boolean connect() {
         boolean success = false;
@@ -256,11 +287,12 @@ public class BebopDrone {
     }
 
     /**
-     * Disconnect from the drone
+     * Se déconnecte du drône.
      *
-     * @return true if operation was successful.
-     * Returning true doesn't mean that device is disconnected.
-     * You can be informed of the actual disconnection through {@link Listener#onDroneConnectionChanged}
+     * @return true si cette opération s'est déroulée correctement.
+     * La valeur de retour true n'indique par forcément que la connexion a fermée avec succès.
+     * Pour connaitre l'état actuel de la connexion avec le drône,
+     * se référer à la méthode {@link Listener#onDroneConnectionChanged}.
      */
     public boolean disconnect() {
         boolean success = false;
@@ -274,41 +306,53 @@ public class BebopDrone {
     }
 
     /**
-     * Get the current connection state
-     *
-     * @return the connection state of the drone
+     * @return l'état courant de la connexion avec le drône
      */
     public ARCONTROLLER_DEVICE_STATE_ENUM getConnectionState() {
         return mState;
     }
 
     /**
-     * Get the current flying state
-     *
-     * @return the flying state
+     * @return l'état courant du pilotage du drône
      */
     public ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM getFlyingState() {
         return mFlyingState;
     }
 
+    /**
+     * Demande le décollage du drône.
+     * Cette méthode n'a d'effet que si la connexion avec le drône est établie.
+     */
     public void takeOff() {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().sendPilotingTakeOff();
         }
     }
 
+    /**
+     * Demande l'atterrissage du drône.
+     * Cette méthode n'a d'effet que si la connexion avec le drône est établie.
+     */
     public void land() {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().sendPilotingLanding();
         }
     }
 
+    /**
+     * Coupe immédiatement les moteurs. Le drône va tomber.
+     * Cette commande prévaut sur toutes les autres et doit être appelée uniquement en cas d'urgence
+     * pour prévenir les dommages matériels.
+     */
     public void emergency() {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().sendPilotingEmergency();
         }
     }
 
+    /**
+     * Demande la capture d'une photo, et l'enregistre sur le stockage interne du drône.
+     */
     public void takePicture() {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
@@ -339,12 +383,25 @@ public class BebopDrone {
         }
     }
 
+    /**
+     * Faut pivoter le drône vers la gauche (valeur négative) ou vers la droite (valeur positive).
+     * Plus la valeur est élevée, puis le drône pivotera rapidement.
+     * Le drône continuera à pivoter tant que cette méthode n'est pas appelée à nouveau avec la valeur 0.
+     * @param yaw valeur en pourcent de -100 à 100
+     */
     public void setYaw(byte yaw) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw(yaw);
         }
     }
 
+    /**
+     * Règle l'altitude du drône. Une valeur positive le faut s'élever dans les airs,
+     * tandis qu'une valeur négative le fait descendre.
+     * Plus la valeur est élevée, plus le drône changera rapidement d'altitude.
+     * L'altitude du drône changera tant que cette méthode n'est pas appelée à nouveau avec la valeur 0.
+     * @param gaz valeur en pourcent de -100 à 100
+     */
     public void setGaz(byte gaz) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz(gaz);
@@ -352,9 +409,9 @@ public class BebopDrone {
     }
 
     /**
-     * Take in account or not the pitch and roll values
+     * Prend en compte ou non les commandes {@link #setPitch(byte)} et {@link #setRoll(byte)}.
      *
-     * @param flag 1 if the pitch and roll values should be used, 0 otherwise
+     * @param flag 1 si Pitch et Roll doivent être pris en compte, 0 sinon
      */
     public void setFlag(byte flag) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
@@ -478,74 +535,86 @@ public class BebopDrone {
 
     public interface Listener {
         /**
-         * Called when the connection to the drone changes.
+         * Appelé quand l'état de connexion au drône a changé.
+         * Cette méthode est appelée sur le Thread principal.
          *
-         * @param state the state of the drone
+         * @param state le nouvel état de connexion avec le drône
          */
         @MainThread
         void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
 
         /**
-         * Called when the battery charge changes.
+         * Appelé lorsque le niveau de charge de la batterie du drône a changé.
+         * Cette méthode est appelée sur le Thread principal.
          *
-         * @param batteryPercentage the battery remaining (in percent)
+         * @param batteryPercentage le pourcentage de batterie restant
          */
         @MainThread
         void onBatteryChargeChanged(int batteryPercentage);
 
         /**
-         * Called when the piloting state changes.
+         * Appelée lorsque l'état de pilotage du drône a changé.
+         * Cette méthode est appelée sur le Thread principal.
          *
-         * @param state the piloting state of the drone
+         * @param state l'état de pilotage du drône
          */
         @MainThread
         void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
 
         /**
-         * Called when a picture is taken.
+         * Appelé lorsqu'une photo a été prise par le drône.
+         * Cette méthode est appelée depuis un autre Thread.
          *
-         * @param error ERROR_OK if picture has been taken, otherwise describe the error
+         * @param error ERROR_OK si la photo a été prise avec succès,
+         *              sinon une autre valeur décrivant l'erreur qui s'est produite.
          */
         @WorkerThread
         void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
 
         /**
-         * Called when the video decoder should be configured.
+         * Appelé lorsque le décodeur vidéo doit être configuré.
+         * Cette méthode est appelée depuis un autre Thread.
          *
-         * @param codec the codec to configure the decoder with
+         * @param codec le codec avec lequel le décodeur doit être configuré.
          */
         @WorkerThread
         void configureDecoder(ARControllerCodec codec);
 
         /**
-         * Called when a video frame has been received.
+         * Appelé quand une frame est reçue depuis le drône lors de la prise de vue en temps réel.
+         * Cette frame doit d'abord être décodée pour être interprétée comme image.
+         * Cette méthode est appelée depuis un autre Thread.
          *
-         * @param frame the video frame
+         * @param frame une frame vidéo
          */
         @WorkerThread
         void onFrameReceived(ARFrame frame);
 
         /**
-         * Called before medias will be downloaded.
+         * Appelé avant le téléchargement de fichiers médias, tels que les photos et vidéos prises
+         * par le drône pendant le vol.
+         * Cette méthode est appelée sur le Thread principal.
          *
-         * @param nbMedias the number of medias that will be downloaded
+         * @param nbMedias le nombre de médias qui va être téléchargé
          */
         @MainThread
         void onMatchingMediasFound(int nbMedias);
 
         /**
-         * Called each time the progress of a download changes.
+         * Appelée à chaque fois que la progression du téléchargement des fichiers médias évolue.
+         * Cette méthode est appelée sur le Thread principal.
          *
-         * @param mediaName the name of the media
-         * @param progress  the progress of its download (from 0 to 100)
+         * @param mediaName le nom du fichier média téléchargé
+         * @param progress  pourcentage de progression du téléchargement
          */
         @MainThread
         void onDownloadProgressed(String mediaName, int progress);
 
         /**
-         * Called when a media download has ended.
+         * Appelé lorsque le téléchargement d'un fichier média vient de se terminer.
+         * Cette méthode est appelée sur le Thread principal.
          *
-         * @param mediaName the name of the media
+         * @param mediaName le nom du fichier média téléchargé
          */
         @MainThread
         void onDownloadComplete(String mediaName);

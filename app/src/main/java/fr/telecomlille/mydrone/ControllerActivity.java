@@ -76,6 +76,9 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
         super.onDestroy();
     }
 
+    /**
+     * Définit une action lorsqu'on relâche le bouton pour diminuer le volume.
+     */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
@@ -86,7 +89,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
     }
 
     /**
-     * Attribue un comportement aux boutons de pilotage.
+     * Initialise les View depuis XML, et attribue un comportement aux boutons de pilotage.
      */
     private void initIHM() {
         mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
@@ -94,6 +97,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
         mBatteryIndicator = (ImageView) findViewById(R.id.battery_indicator);
         mBatteryBar = (ProgressBar) findViewById(R.id.batteryLevel);
 
+        // Décollage et atterrissage
         mTakeoffLandButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +105,8 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                     case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
                         mDrone.takeOff();
                         break;
+                    // Atterir directement après le décollage ?
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_TAKINGOFF:
                     case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
                     case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
                         mDrone.land();
@@ -108,12 +114,14 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 }
             }
         });
+        // Atterrissage d'urgence
         findViewById(R.id.btn_emergency).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDrone.emergency();
             }
         });
+        // Monter en altitude
         findViewById(R.id.btn_gaz_up).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -130,6 +138,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+        // Descendre en altitude
         findViewById(R.id.btn_gaz_down).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -146,6 +155,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+        // Pivoter sur la droite
         findViewById(R.id.btn_yaw_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -162,6 +172,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+        // Pivoter sur la gauche
         findViewById(R.id.btn_yaw_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -178,6 +189,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+        // Avancer
         findViewById(R.id.btn_forward).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -196,6 +208,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+        // Reculer
         findViewById(R.id.btn_back).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -214,6 +227,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+        // Aller à droite
         findViewById(R.id.btn_roll_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -232,6 +246,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+        // Aller à gauche
         findViewById(R.id.btn_roll_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -248,12 +263,6 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                         break;
                 }
                 return true;
-            }
-        });
-        findViewById(R.id.btn_photo).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDrone.takePicture();
             }
         });
     }

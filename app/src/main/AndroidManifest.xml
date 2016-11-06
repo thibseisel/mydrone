@@ -24,6 +24,7 @@
         <activity
             android:name=".ControllerActivity"
             android:screenOrientation="landscape"
+            android:resizeableActivity="false"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen">
         </activity>
 
