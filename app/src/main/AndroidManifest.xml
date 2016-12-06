@@ -42,6 +42,10 @@
         <activity
             android:name=".AccelerometerActivity"
             android:screenOrientation="landscape" />
+
+        <activity android:name=".PathControlActivity"
+            android:screenOrientation="landscape"/>
+
     </application>
 
 </manifest>

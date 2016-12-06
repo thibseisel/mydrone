@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity
         deviceListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> view, View item, int pos, long id) {
-                Intent controllerActivity = new Intent(MainActivity.this, ControllerActivity.class);
+                Intent controllerActivity = new Intent(MainActivity.this, PathControlActivity.class);
                 controllerActivity.putExtra(EXTRA_DEVICE_SERVICE, mAdapter.getItem(pos));
                 startActivity(controllerActivity);
             }
