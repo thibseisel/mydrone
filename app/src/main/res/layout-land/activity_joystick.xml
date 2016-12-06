@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/activity_controller"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:keepScreenOn="true"
+                tools:context="fr.telecomlille.mydrone.ControllerActivity"
+                tools:ignore="RtlHardcoded">
+
+    <fr.telecomlille.mydrone.view.BebopVideoView
+        android:id="@+id/videoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"/>
+
+    <!-- Indicateurs de niveau de batterie -->
+    <ProgressBar
+        android:id="@+id/batteryLevel"
+        style="?android:progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:max="100"
+        android:minHeight="0dp"
+        tools:progress="90"/>
+
+    <ImageView
+        android:id="@+id/battery_indicator"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/battery_level_indicator"
+        android:tint="@android:color/white"
+        app:srcCompat="@drawable/battery_state_list"/>
+
+    <!-- Décollage et atterissage -->
+    <ImageButton
+        android:id="@+id/btn_takeoff_land"
+        style="@style/AppTheme.ControlButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/take_off"
+        app:srcCompat="@drawable/takeoff_land"/>
+
+    <!-- Atterrissage d'urgence -->
+    <Button
+        android:id="@+id/btn_emergency"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/emergency"
+        tools:ignore="RelativeOverlap"/>
+
+    <!-- Contrôles -->
+    <fr.telecomlille.mydrone.view.JoystickView
+        android:id="@+id/joystick_pitch_roll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"/>
+
+    <fr.telecomlille.mydrone.view.JoystickView
+        android:id="@+id/joystick_yawgaz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"/>
+</RelativeLayout>

@@ -14,6 +14,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.AdapterView;
@@ -26,9 +28,22 @@ import com.parrot.arsdk.ardiscovery.receivers.ARDiscoveryServicesDevicesListUpda
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements ARDiscoveryServicesDevicesListUpdatedReceiverDelegate {
+import fr.telecomlille.mydrone.utils.PermissionUtil;
 
+/**
+ * Activité principale permettant d'initier la connexion à distance avec le drône Bebop.
+ * L'activité affiche une liste des différents appareils détectés.
+ * Lorsqu'on clique sur l'un d'eux, une boite de dialogue s'ouvre pour choisir le mode de pilotage souhaité.
+ */
+public class MainActivity extends AppCompatActivity
+        implements ARDiscoveryServicesDevicesListUpdatedReceiverDelegate,
+        PilotingModeFragment.OnPilotingModeSelectedListener {
+
+    /**
+     * Clé pour {@link Intent#putExtra(String, android.os.Parcelable)} permettant de passer
+     * les informations concernant un drône auquel on peut se connecter à une autre Activity.
+     * L'objet transmis doit être du type {@link ARDiscoveryDeviceService}.
+     */
     public static final String EXTRA_DEVICE_SERVICE = "DeviceService";
     private static final String TAG = "MainActivity";
 
@@ -41,6 +56,7 @@ public class MainActivity extends AppCompatActivity
     private View mEmptyView;
     private WifiManager mWifiManager;
     private WifiStateChangedReceiver mWifiStateReceiver;
+    private ARDiscoveryDeviceService mSelectedDrone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +75,12 @@ public class MainActivity extends AppCompatActivity
         deviceListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> view, View item, int pos, long id) {
-                Intent controllerActivity = new Intent(MainActivity.this, ControllerActivity.class);
-                controllerActivity.putExtra(EXTRA_DEVICE_SERVICE, mAdapter.getItem(pos));
-                startActivity(controllerActivity);
+                mSelectedDrone = mAdapter.getItem(pos);
+                new PilotingModeFragment().show(getSupportFragmentManager(), "DIALOG");
             }
         });
+
+        PermissionUtil.requestExternalStoragePermission(this);
     }
 
     @Override
@@ -89,10 +106,25 @@ public class MainActivity extends AppCompatActivity
         unregisterReceivers();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (R.id.action_dialog == item.getItemId()) {
+            new PilotingModeFragment().show(getSupportFragmentManager(), "TEST");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * Démarre le service permettant de chercher des drônes à proximité.
      * Etant donné que le DiscoveryService s'appuie sur un BoundService,
-     * il doit être connecté dans {@link #onStart()} et déconnecté dans {@link #onPause()}.
+     * il doit être connecté dans {@link #onStart()} et déconnecté dans {@link #onStop()}.
      */
     private void initDiscoveryService() {
         // Initialise la connexion au service
@@ -217,6 +249,13 @@ public class MainActivity extends AppCompatActivity
                         mWifiManager.setWifiEnabled(true);
                     }
                 }).show();
+    }
+
+    @Override
+    public void onPilotingModeSelected(Class targetActivity) {
+        Intent pilotingActivity = new Intent(MainActivity.this, targetActivity);
+        pilotingActivity.putExtra(EXTRA_DEVICE_SERVICE, mSelectedDrone);
+        startActivity(pilotingActivity);
     }
 
     /**

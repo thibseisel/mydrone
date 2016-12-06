@@ -4,8 +4,8 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
                 android:keepScreenOn="true"
+                android:layout_height="match_parent"
                 tools:context="fr.telecomlille.mydrone.ControllerActivity"
                 tools:ignore="RtlHardcoded">
 
@@ -31,20 +31,10 @@
         android:id="@+id/battery_indicator"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
         android:contentDescription="@string/battery_level_indicator"
         android:tint="@android:color/white"
         app:srcCompat="@drawable/battery_state_list"/>
-
-    <!-- Décollage et atterissage -->
-    <ImageButton
-        android:id="@+id/btn_takeoff_land"
-        style="@style/AppTheme.ControlButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:contentDescription="@string/take_off"
-        app:srcCompat="@drawable/takeoff_land"/>
 
     <!-- Atterrissage d'urgence -->
     <Button
@@ -52,7 +42,6 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:text="@string/emergency"
         tools:ignore="RelativeOverlap"/>
@@ -64,71 +53,43 @@
         android:layout_alignParentEnd="false"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="24dp"
         android:contentDescription="@string/movement_right"
         app:srcCompat="@drawable/ic_turn_right_24dp"/>
 
     <ImageButton
-        android:id="@+id/btn_roll_left"
-        style="@style/AppTheme.ControlButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="24dp"
-        android:contentDescription="@string/movement_left"
-        app:srcCompat="@drawable/ic_move_left_24dp"/>
-
-    <ImageButton
         android:id="@+id/btn_yaw_left"
         style="@style/AppTheme.ControlButton"
-        android:layout_below="@+id/btn_gaz_up"
-        android:layout_toLeftOf="@+id/btn_gaz_up"
-        android:layout_toStartOf="@+id/btn_gaz_up"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
         android:contentDescription="@string/yaw_left"
         app:srcCompat="@drawable/ic_turn_left_24dp"/>
 
     <ImageButton
-        android:id="@+id/btn_roll_right"
-        style="@style/AppTheme.ControlButton"
-        android:layout_above="@+id/btn_back"
-        android:layout_toEndOf="@+id/btn_back"
-        android:layout_toRightOf="@+id/btn_back"
-        android:contentDescription="@string/movement_right"
-        app:srcCompat="@drawable/ic_move_right_24dp"/>
-
-    <ImageButton
         android:id="@+id/btn_gaz_up"
         style="@style/AppTheme.ControlButton"
-        android:layout_above="@+id/btn_yaw_right"
-        android:layout_toLeftOf="@+id/btn_yaw_right"
-        android:layout_toStartOf="@+id/btn_yaw_right"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@id/battery_indicator"
         android:contentDescription="@string/movement_up"
-        app:srcCompat="@drawable/ic_gaz_up_24dp"/>
+        app:srcCompat="@drawable/ic_gaz_up_24dp" />
 
     <ImageButton
         android:id="@+id/btn_gaz_down"
         style="@style/AppTheme.ControlButton"
-        android:layout_below="@+id/btn_yaw_right"
-        android:layout_toEndOf="@+id/btn_yaw_left"
-        android:layout_toRightOf="@+id/btn_yaw_left"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_above="@id/batteryLevel"
         android:contentDescription="@string/movement_down"
         app:srcCompat="@drawable/ic_gaz_down_24dp"/>
 
+    <!-- Décollage et atterissage -->
     <ImageButton
-        android:id="@+id/btn_forward"
+        android:id="@+id/btn_takeoff_land"
         style="@style/AppTheme.ControlButton"
-        android:layout_alignTop="@+id/btn_gaz_up"
-        android:layout_toEndOf="@+id/btn_roll_left"
-        android:layout_toRightOf="@+id/btn_roll_left"
-        android:contentDescription="@string/movement_forward"
-        app:srcCompat="@drawable/ic_move_forward_24dp"/>
+        android:contentDescription="@string/take_off"
+        android:layout_alignParentEnd="true"
+        app:srcCompat="@drawable/takeoff_land"/>
 
-    <ImageButton
-        android:id="@+id/btn_back"
-        style="@style/AppTheme.ControlButton"
-        android:layout_below="@+id/btn_roll_left"
-        android:layout_toEndOf="@+id/btn_roll_left"
-        android:layout_toRightOf="@+id/btn_roll_left"
-        android:contentDescription="@string/movement_back"
-        app:srcCompat="@drawable/ic_move_back_24dp"/>
+
 </RelativeLayout>

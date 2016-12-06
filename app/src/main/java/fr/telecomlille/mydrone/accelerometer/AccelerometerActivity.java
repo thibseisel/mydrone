@@ -1,12 +1,15 @@
-package fr.telecomlille.mydrone;
+package fr.telecomlille.mydrone.accelerometer;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -18,25 +21,31 @@ import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
+import fr.telecomlille.mydrone.MainActivity;
+import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.BebopVideoView;
 
-public class ControllerActivity extends AppCompatActivity implements BebopDrone.Listener {
+public class AccelerometerActivity extends AppCompatActivity implements BebopDrone.Listener,
+        SensorEventListener {
 
-    public static final int LEVEL_LAND = 1;
-    public static final int LEVEL_TAKEOFF = 0;
+    public static final int SENSITIVITY = 20;
 
-    private static final String TAG = "ControllerActivity";
-    private BebopVideoView mVideoView;
+    private static final String TAG = "AccelerometerActivity";
+
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
     private BebopDrone mDrone;
-    private ImageView mBatteryIndicator;
+    private BebopVideoView mVideoView;
     private ProgressBar mBatteryBar;
-    private ImageButton mTakeoffLandButton;
+    private ImageView mBatteryIndicator;
+
+    // TODO Utiliser notre classe OrientationSensor
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_controller);
+        setContentView(R.layout.activity_accelerometer);
 
         ARDiscoveryDeviceService deviceService = getIntent()
                 .getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
@@ -46,66 +55,23 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                     "ARDiscoveryDeviceService object passed as an extra (EXTRA_DEVICE_SERVICE).");
         }
 
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+
+
         mDrone = new BebopDrone(this, deviceService);
         mDrone.addListener(this);
 
         initIHM();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (mDrone != null && !ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
-                .equals(mDrone.getConnectionState())) {
-            if (!mDrone.connect()) {
-                Toast.makeText(this, "Error while connecting to the drone.",
-                        Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mDrone != null) {
-            if (!mDrone.disconnect()) {
-                Toast.makeText(this, "error while disconnecting to the drone.",
-                        Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        mDrone.removeListener(this);
-        mDrone.dispose();
-        super.onDestroy();
-    }
-
-    /**
-     * Définit une action lorsqu'on relâche le bouton pour diminuer le volume.
-     * Sert à prendre une photo.
-     */
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            mDrone.takePicture();
-            return false;
-        }
-        return super.onKeyUp(keyCode, event);
-    }
-
-    /**
-     * Initialise les View depuis XML, et attribue un comportement aux boutons de pilotage.
-     */
     private void initIHM() {
-        mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
         mVideoView = (BebopVideoView) findViewById(R.id.videoView);
-        mBatteryIndicator = (ImageView) findViewById(R.id.battery_indicator);
         mBatteryBar = (ProgressBar) findViewById(R.id.batteryLevel);
+        mBatteryIndicator = (ImageView) findViewById(R.id.battery_indicator);
 
         // Décollage et atterrissage
-        mTakeoffLandButton.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_takeoff_land).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (mDrone.getFlyingState()) {
@@ -121,13 +87,15 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 }
             }
         });
-        // Atterrissage d'urgence
+
+        // Arrêt d'urgence
         findViewById(R.id.btn_emergency).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDrone.emergency();
             }
         });
+
         // Monter en altitude
         findViewById(R.id.btn_gaz_up).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -145,6 +113,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+
         // Descendre en altitude
         findViewById(R.id.btn_gaz_down).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -162,6 +131,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+
         // Pivoter sur la droite
         findViewById(R.id.btn_yaw_right).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -179,6 +149,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
+
         // Pivoter sur la gauche
         findViewById(R.id.btn_yaw_left).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -196,87 +167,49 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
                 return true;
             }
         });
-        // Avancer
-        findViewById(R.id.btn_forward).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        view.setPressed(true);
-                        mDrone.setPitch(50);
-                        mDrone.setFlag(BebopDrone.FLAG_ENABLED);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        view.setPressed(false);
-                        mDrone.setPitch(0);
-                        mDrone.setFlag(BebopDrone.FLAG_DISABLED);
-                        break;
-                }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_UI);
+        if (mDrone != null && !mDrone.connect()) {
+            Toast.makeText(this, "Error while connecting to the drone.",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mSensorManager.unregisterListener(this, mSensor);
+        if (mDrone != null && !mDrone.disconnect()) {
+            Toast.makeText(this, "Error while disconnecting to the drone.",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDrone.dispose();
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        // Prendre une photo avec le bouton "Volume bas"
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (mDrone != null) {
+                mDrone.takePicture();
                 return true;
             }
-        });
-        // Reculer
-        findViewById(R.id.btn_back).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        view.setPressed(true);
-                        mDrone.setPitch(-50);
-                        mDrone.setFlag(BebopDrone.FLAG_ENABLED);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        view.setPressed(false);
-                        mDrone.setPitch(0);
-                        mDrone.setFlag(BebopDrone.FLAG_DISABLED);
-                        break;
-                }
-                return true;
-            }
-        });
-        // Aller à droite
-        findViewById(R.id.btn_roll_right).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        view.setPressed(true);
-                        mDrone.setRoll(50);
-                        mDrone.setFlag(BebopDrone.FLAG_ENABLED);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        view.setPressed(false);
-                        mDrone.setRoll(0);
-                        mDrone.setFlag(BebopDrone.FLAG_DISABLED);
-                        break;
-                }
-                return true;
-            }
-        });
-        // Aller à gauche
-        findViewById(R.id.btn_roll_left).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        view.setPressed(true);
-                        mDrone.setRoll(-50);
-                        mDrone.setFlag(BebopDrone.FLAG_ENABLED);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        view.setPressed(false);
-                        mDrone.setRoll(0);
-                        mDrone.setFlag(BebopDrone.FLAG_DISABLED);
-                        break;
-                }
-                return true;
-            }
-        });
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
     public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        Log.d(TAG, "onDroneConnectionChanged() called with: state = [" + state + "]");
+
     }
 
     @Override
@@ -287,22 +220,12 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
 
     @Override
     public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-        Log.d(TAG, "onPilotingStateChanged() called with: state = [" + state + "]");
-        switch (state) {
-            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                mTakeoffLandButton.setImageLevel(LEVEL_TAKEOFF);
-                break;
-            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
-            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                mTakeoffLandButton.setImageLevel(LEVEL_LAND);
-                break;
-        }
+
     }
 
     @Override
     public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-        Toast.makeText(this, R.string.picture_saved, Toast.LENGTH_SHORT).show();
-        mDrone.getLastFlightMedias();
+
     }
 
     @Override
@@ -317,17 +240,77 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
 
     @Override
     public void onMatchingMediasFound(int nbMedias) {
-        Log.d(TAG, "onMatchingMediasFound() called with: nbMedias = [" + nbMedias + "]");
+
     }
 
     @Override
     public void onDownloadProgressed(String mediaName, int progress) {
-        Log.d(TAG, "onDownloadProgressed() called with: mediaName = [" + mediaName + "], progress = [" + progress + "]");
+
     }
 
     @Override
     public void onDownloadComplete(String mediaName) {
-        Log.d(TAG, "onDownloadComplete() called with: mediaName = [" + mediaName + "]");
-        Toast.makeText(this, "Téléchargement terminé", Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float[] linearAcceleration = new float[3];
+        linearAcceleration[0] = event.values[0];
+        linearAcceleration[1] = event.values[1];
+        linearAcceleration[2] = event.values[2];
+
+        mDrone.setFlag(BebopDrone.FLAG_ENABLED);
+
+        if ((linearAcceleration[0] >= 5) && (linearAcceleration[1] >= 1)) {
+            mDrone.setPitch(-SENSITIVITY);
+            mDrone.setRoll(SENSITIVITY);
+        }
+        //AVANT DROITE
+        else if ((linearAcceleration[0] <= -0.5) && (linearAcceleration[1] >= 1)) {
+            mDrone.setPitch(SENSITIVITY);
+            mDrone.setRoll(SENSITIVITY);
+        }
+        //ARRIERE GAUCHE
+        else if ((linearAcceleration[0] >= 5) && (linearAcceleration[1] <= -1)) {
+            mDrone.setPitch(-SENSITIVITY);
+            mDrone.setRoll(-SENSITIVITY);
+        }
+        //AVANT GAUCHE
+        else if ((linearAcceleration[0] <= -0.5) && (linearAcceleration[1] <= -1)) {
+            mDrone.setPitch(SENSITIVITY);
+            mDrone.setRoll(-SENSITIVITY);
+        }
+        //ARRIERE
+        else if (linearAcceleration[0] >= 5) {
+            mDrone.setPitch(-SENSITIVITY);
+            mDrone.setRoll(0);
+        }
+        //AVANT
+        else if (linearAcceleration[0] <= -0.5) {
+            mDrone.setPitch(SENSITIVITY);
+            mDrone.setRoll(0);
+        }
+        //DROITE
+        else if (linearAcceleration[1] >= 2) {
+            mDrone.setPitch(0);
+            mDrone.setRoll(SENSITIVITY);
+        }
+        //GAUCHE
+        else if (linearAcceleration[1] <= -2) {
+            mDrone.setPitch(0);
+            mDrone.setRoll(-SENSITIVITY);
+            // IMMOBILE
+        } else {
+            mDrone.setFlag(BebopDrone.FLAG_DISABLED);
+            mDrone.setPitch(0);
+            mDrone.setRoll(0);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int newAccuracy) {
+        Log.d(TAG, "onAccuracyChanged() called with: sensor = [" + sensor
+                + "], newAccuracy = [" + newAccuracy + "]");
     }
 }

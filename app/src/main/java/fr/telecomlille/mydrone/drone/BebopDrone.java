@@ -2,9 +2,9 @@ package fr.telecomlille.mydrone.drone;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.IntRange;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
-import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
@@ -52,10 +52,24 @@ import java.util.List;
  */
 public class BebopDrone {
 
+    /**
+     * Constante pour {@link #setFlag(byte)}.
+     * Active les mouvements "pitch" et "roll" du drône dans le plan (X,Z).
+     */
+    public static final byte FLAG_ENABLED = 1;
+    /**
+     * Constante pour {@link #setFlag(byte)}.
+     * Désactive les mouvements "pitch" et "roll" du drône dans le plan (X,Z).
+     */
+    public static final byte FLAG_DISABLED = 0;
     private static final String TAG = "BebopDrone";
     private static final int DEVICE_PORT = 21;
     private final List<Listener> mListeners;
     private final Handler mHandler;
+
+    /**
+     * Relaie les évènements liés au stockage des photos et des vidéos prises par le drône.
+     */
     private final SDCardModule.Listener mSDCardModuleListener = new SDCardModule.Listener() {
         @Override
         public void onMatchingMediasFound(final int nbMedias) {
@@ -87,6 +101,10 @@ public class BebopDrone {
             });
         }
     };
+
+    /**
+     * Relaie les évènements liés au flux média émis par le drône (i.e. vidéo en temps réel).
+     */
     private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
         @Override
         public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, final ARControllerCodec codec) {
@@ -104,14 +122,20 @@ public class BebopDrone {
         public void onFrameTimeout(ARDeviceController deviceController) {
         }
     };
+
     private ARDeviceController mDeviceController;
     private SDCardModule mSDCardModule;
     private ARCONTROLLER_DEVICE_STATE_ENUM mState;
     private ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM mFlyingState;
     private String mCurrentRunId;
+
+    /**
+     * Relaie les évènements liés au pilotage du drône (changements d'état, réception de commandes).
+     */
     private final ARDeviceControllerListener mDeviceControllerListener = new ARDeviceControllerListener() {
         @Override
-        public void onStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARCONTROLLER_ERROR_ENUM error) {
+        public void onStateChanged(ARDeviceController deviceController,
+                                   ARCONTROLLER_DEVICE_STATE_ENUM newState, ARCONTROLLER_ERROR_ENUM error) {
             mState = newState;
             if (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(mState)) {
                 mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
@@ -127,11 +151,17 @@ public class BebopDrone {
         }
 
         @Override
-        public void onExtensionStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARDISCOVERY_PRODUCT_ENUM product, String name, ARCONTROLLER_ERROR_ENUM error) {
+        public void onExtensionStateChanged(ARDeviceController deviceController,
+                                            ARCONTROLLER_DEVICE_STATE_ENUM newState,
+                                            ARDISCOVERY_PRODUCT_ENUM product, String name,
+                                            ARCONTROLLER_ERROR_ENUM error) {
+            Log.d(TAG, "onExtensionStateChanged");
         }
 
         @Override
-        public void onCommandReceived(ARDeviceController deviceController, ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey, ARControllerDictionary elementDictionary) {
+        public void onCommandReceived(ARDeviceController deviceController,
+                                      ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey,
+                                      ARControllerDictionary elementDictionary) {
             // if event received is the battery update
             if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
@@ -199,7 +229,7 @@ public class BebopDrone {
      * @param deviceService les données associées au drône lors de sa découverte.
      *                      Il doit s'agit d'un drône Bebop.
      */
-    public BebopDrone(Context context, @NonNull ARDiscoveryDeviceService deviceService) {
+    public BebopDrone(@NonNull Context context, @NonNull ARDiscoveryDeviceService deviceService) {
 
         mListeners = new ArrayList<>();
 
@@ -365,9 +395,9 @@ public class BebopDrone {
      *
      * @param pitch value in percentage from -100 to 100
      */
-    public void setPitch(byte pitch) {
+    public void setPitch(@IntRange(from = -100, to = 100) int pitch) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
-            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch(pitch);
+            mDeviceController.getFeatureARDrone3().setPilotingPCMDPitch((byte) pitch);
         }
     }
 
@@ -377,21 +407,22 @@ public class BebopDrone {
      *
      * @param roll value in percentage from -100 to 100
      */
-    public void setRoll(byte roll) {
+    public void setRoll(@IntRange(from = -100, to = 100) int roll) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
-            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll(roll);
+            mDeviceController.getFeatureARDrone3().setPilotingPCMDRoll((byte) roll);
         }
     }
 
     /**
-     * Faut pivoter le drône vers la gauche (valeur négative) ou vers la droite (valeur positive).
+     * Fait pivoter le drône vers la gauche (valeur négative) ou vers la droite (valeur positive).
      * Plus la valeur est élevée, puis le drône pivotera rapidement.
      * Le drône continuera à pivoter tant que cette méthode n'est pas appelée à nouveau avec la valeur 0.
+     *
      * @param yaw valeur en pourcent de -100 à 100
      */
-    public void setYaw(byte yaw) {
+    public void setYaw(@IntRange(from = -100, to = 100) int yaw) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
-            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw(yaw);
+            mDeviceController.getFeatureARDrone3().setPilotingPCMDYaw((byte) yaw);
         }
     }
 
@@ -400,18 +431,20 @@ public class BebopDrone {
      * tandis qu'une valeur négative le fait descendre.
      * Plus la valeur est élevée, plus le drône changera rapidement d'altitude.
      * L'altitude du drône changera tant que cette méthode n'est pas appelée à nouveau avec la valeur 0.
+     *
      * @param gaz valeur en pourcent de -100 à 100
      */
-    public void setGaz(byte gaz) {
+    public void setGaz(@IntRange(from = -100, to = 100) int gaz) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
-            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz(gaz);
+            mDeviceController.getFeatureARDrone3().setPilotingPCMDGaz((byte) gaz);
         }
     }
 
     /**
-     * Prend en compte ou non les commandes {@link #setPitch(byte)} et {@link #setRoll(byte)}.
+     * Prend en compte ou non les commandes {@link #setPitch(int)} et {@link #setRoll(int)}.
      *
-     * @param flag 1 si Pitch et Roll doivent être pris en compte, 0 sinon
+     * @param flag {@link #FLAG_ENABLED} si Pitch et Roll doivent être pris en compte,
+     *             {@link #FLAG_DISABLED} sinon
      */
     public void setFlag(byte flag) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
@@ -568,7 +601,6 @@ public class BebopDrone {
          * @param error ERROR_OK si la photo a été prise avec succès,
          *              sinon une autre valeur décrivant l'erreur qui s'est produite.
          */
-        @WorkerThread
         void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
 
         /**
@@ -577,7 +609,6 @@ public class BebopDrone {
          *
          * @param codec le codec avec lequel le décodeur doit être configuré.
          */
-        @WorkerThread
         void configureDecoder(ARControllerCodec codec);
 
         /**
@@ -587,7 +618,6 @@ public class BebopDrone {
          *
          * @param frame une frame vidéo
          */
-        @WorkerThread
         void onFrameReceived(ARFrame frame);
 
         /**

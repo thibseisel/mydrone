@@ -17,4 +17,8 @@
     <string name="yaw_right">Right</string>
     <string name="yaw_left">Left</string>
     <string name="picture_saved">Picture saved</string>
+    <string name="control_buttons">Buttons</string>
+    <string name="control_joystick">Joystick</string>
+    <string name="control_accelerometer">Accelerometer</string>
+    <string name="choice_piloting_mode">Select a piloting mode</string>
 </resources>

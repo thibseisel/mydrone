@@ -106,7 +106,8 @@ public class SDCardModule {
                 }
             }
             try {
-                mDataTransferManager.getARDataTransferMediasDownloader().createMediasDownloader(mFtpList, mFtpQueue, DRONE_MEDIA_FOLDER, externalDirectory);
+                mDataTransferManager.getARDataTransferMediasDownloader()
+                        .createMediasDownloader(mFtpList, mFtpQueue, DRONE_MEDIA_FOLDER, externalDirectory);
             } catch (ARDataTransferException e) {
                 Log.e(TAG, "Exception", e);
                 result = e.getError();
