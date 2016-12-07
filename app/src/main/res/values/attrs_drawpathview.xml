@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DrawPathView">
+        <attr name="pathColor" format="color|reference"/>
+        <attr name="pathSize" format="dimension|reference"/>
+        <attr name="drawingEnabled" format="boolean|reference"/>
+    </declare-styleable>
+</resources>

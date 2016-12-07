@@ -106,4 +106,9 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
         mInitialRealPosX = realDistLeft;
         mInitialRealPosY = realDistFor;
     }
+
+    @Override
+    public void onPathCanceled() {
+
+    }
 }
