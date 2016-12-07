@@ -41,11 +41,13 @@
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen">
         </activity>
-
-        <activity android:name=".accelerometer.AccelerometerActivity"
-                  android:parentActivityName=".MainActivity"
+        <activity
+            android:name=".accelerometer.AccelerometerActivity"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen">
+        </activity>
+        <activity android:name=".PathControlActivity">
         </activity>
     </application>
 
