@@ -30,14 +30,30 @@ public class DrawPathView extends View {
 
     private boolean mDrawingEnabled;
 
+    /**
+     * Construit une nouvelle instance de DrawPathView.
+     */
     public DrawPathView(Context context) {
         this(context, null, 0);
     }
 
+    /**
+     * Construit une nouvelle instance de DrawPathView avec les attributs spécifiés par XML.
+     *
+     * @param attrs        attributs spécifiés par XML
+     */
     public DrawPathView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
+    /**
+     * Construit une nouvelle instance de DrawPathView avec les attributs spécifiés par XML
+     * et un style par défaut.
+     *
+     * @param attrs        attributs spécifiés par XML
+     * @param defStyleAttr identifiant d'une ressource du thème courant pointant vers le style par
+     *                     défaut à utiliser pour ce View. 0 pour ne pas utiliser de style par défaut.
+     */
     public DrawPathView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
@@ -63,12 +79,14 @@ public class DrawPathView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mPointsInPath.size() > 1) {
-            for (int i = 1; i < mPointsInPath.size(); i++) {
-                float[] from = mPointsInPath.get(i - 1);
-                float[] to = mPointsInPath.get(i);
-                canvas.drawLine(from[0], from[1], to[0], to[1], mPathPaint);
-            }
+        if (!mDrawingEnabled) {
+            // Dessine de la transparence rouge si en mode "annulation"
+            canvas.drawARGB(64, 255, 0, 0);
+        }
+        for (int i = 1; i < mPointsInPath.size(); i++) {
+            float[] from = mPointsInPath.get(i - 1);
+            float[] to = mPointsInPath.get(i);
+            canvas.drawLine(from[0], from[1], to[0], to[1], mPathPaint);
         }
     }
 
@@ -90,17 +108,17 @@ public class DrawPathView extends View {
                     (x + lastPoint[0] / 2), (y + lastPoint[1] / 2));
             mPointsInPath.add(new float[]{x, y});
             invalidate();
-
-            if (mListener != null) {
-                mListener.onPathFinished(mPointsInPath);
-            }
         }
     }
 
     private void onTouchUp(float x, float y) {
-        float[] lastPoint = mPointsInPath.get(mPointsInPath.size() - 1);
         mPath.lineTo(x, y);
         invalidate();
+
+        if (mListener != null) {
+            if (mDrawingEnabled) mListener.onPathFinished(mPointsInPath);
+            else mListener.onPathCanceled();
+        }
     }
 
     @Override
@@ -127,8 +145,9 @@ public class DrawPathView extends View {
      *
      * @param enabled si le mode tracé est activé ou non
      */
-    private void setDrawingEnabled(boolean enabled) {
+    public void setDrawingEnabled(boolean enabled) {
         mDrawingEnabled = enabled;
+        invalidate();
     }
 
     /**
@@ -142,6 +161,7 @@ public class DrawPathView extends View {
     public interface PathListener {
         /**
          * Indique qu'un tracé a été complété.
+         *
          * @param pointsInPath ensemble des points qui constituent le tracé
          */
         void onPathFinished(List<float[]> pointsInPath);

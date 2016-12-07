@@ -21,4 +21,5 @@
     <string name="control_joystick">Joystick</string>
     <string name="control_accelerometer">Accelerometer</string>
     <string name="choice_piloting_mode">Select a piloting mode</string>
+    <string name="control_pathdraw">Path</string>
 </resources>

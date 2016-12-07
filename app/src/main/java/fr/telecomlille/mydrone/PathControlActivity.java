@@ -1,114 +1,108 @@
 package fr.telecomlille.mydrone;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
+import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 import java.util.List;
 
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.DrawPathView;
 
-public class PathControlActivity extends AppCompatActivity implements DrawPathView.PathListener {
+public class PathControlActivity extends AppCompatActivity implements DrawPathView.PathListener, PathControlTask.TaskListener {
 
+    private static final String TAG = "PathControlActivity";
     private int mRoomSizeX;
     private int mRoomSizeY;
-    private float mInitialRealPosX, mInitialRealPosY;
+    private float[] mInitialRealPos;
     private float mScreenWidth, mScreenHeight;
     private BebopDrone mDrone;
+    private DrawPathView mPathView;
+    private PathControlTask mPathControlTask;
+    private ImageButton mTakeoffLandButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_path_control);
-        DrawPathView pathView = (DrawPathView) findViewById(R.id.drawPathView);
-//        mPathView.setPathListener(this);
-        mInitialRealPosX = 1;
-        mInitialRealPosY = 1;
-        mScreenHeight = pathView.getHeight();
-        mScreenWidth = pathView.getWidth();
-        /*Intent caller = getIntent();
+        mPathView = (DrawPathView) findViewById(R.id.drawPathView);
+        mPathView.setPathListener(this);
+        mInitialRealPos = new float[]{1, 1};
+        Intent caller = getIntent();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
-        mDrone = new BebopDrone(this, deviceService);*/
+        mDrone = new BebopDrone(this, deviceService);
+        mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
+        mTakeoffLandButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (mDrone.getFlyingState()) {
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                        mDrone.takeOff();
+                        break;
+                    // Atterir directement après le décollage ?
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_TAKINGOFF:
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                        mDrone.land();
+                        break;
+                }
+            }
+        });
+        findViewById(R.id.btn_emergency).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDrone.emergency();
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-//        mDrone.connect();
+        mDrone.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        mDrone.disconnect();
+        mDrone.disconnect();
     }
+
+    /*@Override
+    protected void onDestroy() {
+        mDrone.dispose();
+        super.onDestroy();
+    }*/
 
     @Override
     public void onPathFinished(final List<float[]> pointsInPath) {
-        float previousX = pointsInPath.get(0)[0];
-        float previousY = pointsInPath.get(0)[1];
-        float actualX, actualY;
-        float distX, distY;
-        float realDistLeft = mInitialRealPosX;
-        float realDistRight = mScreenWidth - mInitialRealPosX;
-        float realDistFor = mInitialRealPosY;
-        float realDistBack = mScreenHeight - mInitialRealPosY;
-        float timeToMove;
-
-        for (int i = 1; i < pointsInPath.size(); i++) {
-            actualX = pointsInPath.get(i)[0];
-            actualY = pointsInPath.get(i)[1];
-            if (actualX <= previousX) {
-                distX = (actualX - previousX) * realDistLeft / actualX;
-                realDistRight += Math.abs(distX);
-                realDistLeft -= Math.abs(distX);
-            } else {
-                distX = (actualX - previousX) * realDistRight / (mScreenWidth - actualX);
-                realDistRight -= Math.abs(distX);
-                realDistLeft += Math.abs(distX);
-            }
-            if (actualY <= previousY) {
-                distY = (previousY - actualY) * realDistFor / actualY;
-                realDistFor -= Math.abs(distY);
-                realDistBack += Math.abs(distY);
-            } else {
-                distY = (previousY - actualY) * realDistBack / (mScreenHeight - actualY);
-                realDistFor += Math.abs(distY);
-                realDistBack -= Math.abs(distY);
-            }
-            previousX = actualX;
-            previousY = actualY;
-            if (Math.abs(distX) >= Math.abs(distY)) {
-                timeToMove = (distX / 9) * 1000;
-                mDrone.setFlag((byte) 1);
-                mDrone.setRoll((byte) Math.round(50 * (distX / Math.abs(distX))));
-                mDrone.setPitch((byte) Math.round(distY / timeToMove));
-            } else {
-                timeToMove = (distY / 9) * 1000;
-                mDrone.setFlag((byte) 1);
-                mDrone.setPitch((byte) Math.round(50 * (distY / Math.abs(distY))));
-                mDrone.setRoll((byte) Math.round(distX / timeToMove));
-            }
-
-            // SLEEP FOR TIME = timeToMove
-            // TODO Déporter les mouvements et l'attente sur un autre thread
-            try {
-                Thread.sleep(Math.round(timeToMove));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            mDrone.setPitch((byte) 0);
-            mDrone.setRoll((byte) 0);
-            mDrone.setFlag((byte) 0);
-        }
-
-        mInitialRealPosX = realDistLeft;
-        mInitialRealPosY = realDistFor;
+        Log.d(TAG, "onPathFinished: received new path of size: " + pointsInPath.size());
+        mPathControlTask = new PathControlTask(mDrone, mPathView, mInitialRealPos, pointsInPath, this);
+        mPathControlTask.execute();
+        mPathView.setDrawingEnabled(false);
     }
 
     @Override
     public void onPathCanceled() {
+        Log.d(TAG, "onPathCanceled: Cancel current path !");
+        mPathControlTask.cancel(true);
+        mDrone.setFlag(BebopDrone.FLAG_DISABLED);
+        mDrone.setPitch(0);
+        mDrone.setRoll(0);
+        mPathView.setDrawingEnabled(true);
+    }
 
+    @Override
+    public void onPathExecuted(float[] initialCoordinates, boolean interrupted) {
+        Log.d(TAG, "onPathExecuted: path finished.Interrupted=" + interrupted);
+        mInitialRealPos = initialCoordinates;
+        Toast.makeText(this, "Path finished.", Toast.LENGTH_SHORT).show();
+        mPathView.setDrawingEnabled(true);
     }
 }

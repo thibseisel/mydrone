@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (R.id.action_drawpath == item.getItemId()) {
-            startActivity(new Intent(this, PathControlActivity.class));
+            new PilotingModeFragment().show(getSupportFragmentManager(), null);
             return true;
         }
         return super.onOptionsItemSelected(item);

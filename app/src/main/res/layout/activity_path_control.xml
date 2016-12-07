@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:id="@+id/activity_path_control"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="fr.telecomlille.mydrone.PathControlActivity">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="fr.telecomlille.mydrone.PathControlActivity"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <fr.telecomlille.mydrone.view.DrawPathView
         android:id="@+id/drawPathView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
+
+    <!-- Décollage et atterissage -->
+    <ImageButton
+        android:id="@+id/btn_takeoff_land"
+        style="@style/AppTheme.ControlButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/take_off"
+        app:srcCompat="@drawable/takeoff_land"
+        android:tint="?colorAccent"/>
+
+    <!-- Atterrissage d'urgence -->
+    <Button
+        android:id="@+id/btn_emergency"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/emergency"
+        tools:ignore="RelativeOverlap"/>
 
 </RelativeLayout>

@@ -17,9 +17,10 @@
     <string name="movement_left">Gauche</string>
     <string name="movement_right">Droite</string>
     <string name="yaw_right">Droite</string>
-    <string name="picture_saved">Photo sauvegardée</string>
     <string name="choice_piloting_mode">Choisissez un mode de pilotage</string>
     <string name="control_accelerometer">Accéléromètre</string>
     <string name="control_buttons">Boutons</string>
     <string name="control_joystick">Joystick</string>
+    <string name="control_pathdraw">Tracé</string>
+    <string name="picture_saved">Photo sauvegardée</string>
 </resources>
