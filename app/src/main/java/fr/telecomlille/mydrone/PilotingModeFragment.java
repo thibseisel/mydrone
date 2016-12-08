@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import fr.telecomlille.mydrone.accelerometer.AccelerometerActivity;
+import fr.telecomlille.mydrone.path.PathControlActivity;
 
 /**
  * Une boite de dialogue qui apparait en bas de l'écran lorsque l'utilisateur

@@ -49,7 +49,7 @@
             android:theme="@style/AppTheme.NoActionBar.Fullscreen">
         </activity>
 
-        <activity android:name=".PathControlActivity"
+        <activity android:name=".path.PathControlActivity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen">
         </activity>

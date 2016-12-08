@@ -1,4 +1,4 @@
-package fr.telecomlille.mydrone;
+package fr.telecomlille.mydrone.path;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,20 +12,21 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 import java.util.List;
 
+import fr.telecomlille.mydrone.MainActivity;
+import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.DrawPathView;
 
 public class PathControlActivity extends AppCompatActivity implements DrawPathView.PathListener, PathControlTask.TaskListener {
 
     private static final String TAG = "PathControlActivity";
-    private int mRoomSizeX;
-    private int mRoomSizeY;
-    private float[] mInitialRealPos;
-    private float mScreenWidth, mScreenHeight;
     private BebopDrone mDrone;
     private DrawPathView mPathView;
     private PathControlTask mPathControlTask;
     private ImageButton mTakeoffLandButton;
+    private float[] mInitialPosInRoom;
+    private float mRoomSizeX = 2;
+    private float mRoomSizeY = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,7 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
         setContentView(R.layout.activity_path_control);
         mPathView = (DrawPathView) findViewById(R.id.drawPathView);
         mPathView.setPathListener(this);
-        mInitialRealPos = new float[]{1, 1};
+        mInitialPosInRoom = new float[]{mRoomSizeX/2, mRoomSizeY/2};
         Intent caller = getIntent();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
         mDrone = new BebopDrone(this, deviceService);
@@ -83,7 +84,8 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
     @Override
     public void onPathFinished(final List<float[]> pointsInPath) {
         Log.d(TAG, "onPathFinished: received new path of size: " + pointsInPath.size());
-        mPathControlTask = new PathControlTask(mDrone, mPathView, mInitialRealPos, pointsInPath, this);
+        mPathControlTask = new PathControlTask(mDrone, mPathView, mInitialPosInRoom,
+                new float[]{mRoomSizeX, mRoomSizeY}, pointsInPath, this);
         mPathControlTask.execute();
         mPathView.setDrawingEnabled(false);
     }
@@ -101,7 +103,7 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
     @Override
     public void onPathExecuted(float[] initialCoordinates, boolean interrupted) {
         Log.d(TAG, "onPathExecuted: path finished.Interrupted=" + interrupted);
-        mInitialRealPos = initialCoordinates;
+        mInitialPosInRoom = initialCoordinates;
         Toast.makeText(this, "Path finished.", Toast.LENGTH_SHORT).show();
         mPathView.setDrawingEnabled(true);
     }
