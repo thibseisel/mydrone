@@ -327,6 +327,9 @@ public class BebopDrone {
     public boolean disconnect() {
         boolean success = false;
         if ((mDeviceController != null) && (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(mState))) {
+            // Bloque les mouvements du drône et le fait atterir avant déconnexion par sécurité
+            setFlag(FLAG_DISABLED);
+            land();
             ARCONTROLLER_ERROR_ENUM error = mDeviceController.stop();
             if (error == ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK) {
                 success = true;

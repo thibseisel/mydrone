@@ -1,10 +1,13 @@
 package fr.telecomlille.mydrone.path;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -25,8 +28,8 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
     private PathControlTask mPathControlTask;
     private ImageButton mTakeoffLandButton;
     private float[] mInitialPosInRoom;
-    private float mRoomSizeX = 2;
-    private float mRoomSizeY = 2;
+    private float mRoomSizeX;
+    private float mRoomSizeY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +37,11 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
         setContentView(R.layout.activity_path_control);
         mPathView = (DrawPathView) findViewById(R.id.drawPathView);
         mPathView.setPathListener(this);
-        mInitialPosInRoom = new float[]{mRoomSizeX/2, mRoomSizeY/2};
         Intent caller = getIntent();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
         mDrone = new BebopDrone(this, deviceService);
         mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
+        showDimensionDialog();
         mTakeoffLandButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,6 +70,25 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
     protected void onStart() {
         super.onStart();
         mDrone.connect();
+    }
+
+    private void showDimensionDialog() {
+        final View dialogView = getLayoutInflater().inflate(R.layout.room_size_dialog, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Dimensions de la pièce")
+                .setMessage("Placez le drône au centre de la pièce.")
+                .setView(dialogView)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        EditText textRoomX = (EditText) dialogView.findViewById(R.id.txtRoomDimX);
+                        mRoomSizeX = Float.parseFloat(textRoomX.getText().toString());
+                        EditText textRoomY = (EditText) dialogView.findViewById(R.id.txtRoomDimY);
+                        mRoomSizeY = Float.parseFloat(textRoomY.getText().toString());
+                        mInitialPosInRoom = new float[]{mRoomSizeX/2, mRoomSizeY/2};
+                        dialog.dismiss();
+                    }
+                }).create().show();
     }
 
     @Override
