@@ -220,4 +220,9 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
     public void onDownloadComplete(String mediaName) {
         Log.d(TAG, "onDownloadComplete() called with: mediaName = [" + mediaName + "]");
     }
+
+    @Override
+    public void onRelativeMoveFinished(float dX, float dY, float dZ, float dPsi, boolean isInterrupted) {
+
+    }
 }

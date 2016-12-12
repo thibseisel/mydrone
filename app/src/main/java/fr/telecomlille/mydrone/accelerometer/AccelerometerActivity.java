@@ -254,6 +254,11 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
     }
 
     @Override
+    public void onRelativeMoveFinished(float dX, float dY, float dZ, float dPsi, boolean isInterrupted) {
+
+    }
+
+    @Override
     public void onSensorChanged(SensorEvent event) {
         float[] linearAcceleration = new float[3];
         linearAcceleration[0] = event.values[0];

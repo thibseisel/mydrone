@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="fr.telecomlille.mydrone"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="fr.telecomlille.mydrone">
 
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".MyApplication"
@@ -17,21 +17,20 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ControllerActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
 
         <receiver android:name=".MainActivity$WifiStateChangedReceiver">
             <intent-filter>
-                <action android:name="android.net.wifi.STATE_CHANGED"/>
+                <action android:name="android.net.wifi.STATE_CHANGED" />
             </intent-filter>
         </receiver>
 
@@ -39,20 +38,17 @@
             android:name=".JoystickActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen">
-        </activity>
-
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
         <activity
             android:name=".accelerometer.AccelerometerActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen">
-        </activity>
-
-        <activity android:name=".path.PathControlActivity"
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
+        <activity
+            android:name=".path.PathControlActivity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
+        <activity android:name=".recognition.RecognitionActivity"></activity>
     </application>
 
 </manifest>

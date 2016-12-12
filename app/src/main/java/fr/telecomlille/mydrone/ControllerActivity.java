@@ -330,4 +330,9 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
         Log.d(TAG, "onDownloadComplete() called with: mediaName = [" + mediaName + "]");
         Toast.makeText(this, "Téléchargement terminé", Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void onRelativeMoveFinished(float dX, float dY, float dZ, float dPsi, boolean isInterrupted) {
+
+    }
 }
