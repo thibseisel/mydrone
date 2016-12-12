@@ -1,5 +1,6 @@
 package fr.telecomlille.mydrone.accelerometer;
 
+import android.app.ProgressDialog;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -39,6 +40,8 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
     private BebopVideoView mVideoView;
     private ProgressBar mBatteryBar;
     private ImageView mBatteryIndicator;
+
+    private ProgressDialog mConnectionDialog;
 
     // TODO Utiliser notre classe OrientationSensor
 
@@ -172,20 +175,35 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
     @Override
     protected void onStart() {
         super.onStart();
-        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_UI);
-        if (mDrone != null && !mDrone.connect()) {
-            Toast.makeText(this, "Error while connecting to the drone.",
-                    Toast.LENGTH_LONG).show();
+
+        if (mDrone != null && !(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
+                .equals(mDrone.getConnectionState()))) {
+            mConnectionDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+            mConnectionDialog.setIndeterminate(true);
+            mConnectionDialog.setMessage(getString(R.string.connecting));
+            mConnectionDialog.setCancelable(false);
+            mConnectionDialog.show();
+
+            if (!mDrone.connect()) {
+                Toast.makeText(this, R.string.error_connecting, Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mSensorManager.unregisterListener(this, mSensor);
-        if (mDrone != null && !mDrone.disconnect()) {
-            Toast.makeText(this, "Error while disconnecting to the drone.",
-                    Toast.LENGTH_SHORT).show();
+    public void onBackPressed() {
+        if (mDrone != null) {
+            mConnectionDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+            mConnectionDialog.setIndeterminate(true);
+            mConnectionDialog.setMessage(getString(R.string.disconnecting));
+            mConnectionDialog.setCancelable(false);
+            mConnectionDialog.show();
+
+            if (!mDrone.disconnect()) {
+                Toast.makeText(this, R.string.error_disconnecting, Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
     }
 
@@ -209,7 +227,15 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
 
     @Override
     public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-
+        switch (state) {
+            case ARCONTROLLER_DEVICE_STATE_RUNNING:
+                mConnectionDialog.dismiss();
+                break;
+            case ARCONTROLLER_DEVICE_STATE_STOPPED:
+                // Si la déconnexion est un succès, retour à l'activité précédente
+                mConnectionDialog.dismiss();
+                finish();
+        }
     }
 
     @Override

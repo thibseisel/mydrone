@@ -22,4 +22,11 @@
     <string name="control_accelerometer">Accelerometer</string>
     <string name="choice_piloting_mode">Select a piloting mode</string>
     <string name="control_pathdraw">Path</string>
+    <string name="disconnecting">Disconnecting…</string>
+    <string name="connecting">Connecting…</string>
+    <string name="error_disconnecting">Error while disconnecting</string>
+    <string name="error_connecting">Error while connecting</string>
+    <string name="ok">OK</string>
+    <string name="path_control_explanation">Put the drone in the middle of the room.</string>
+    <string name="room_dimensions">Room measurements</string>
 </resources>

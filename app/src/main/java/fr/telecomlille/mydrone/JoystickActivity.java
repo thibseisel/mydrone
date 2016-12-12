@@ -1,5 +1,6 @@
 package fr.telecomlille.mydrone;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -27,6 +28,8 @@ import fr.telecomlille.mydrone.view.JoystickView;
 public class JoystickActivity extends AppCompatActivity implements BebopDrone.Listener {
 
     private static final String TAG = "JoystickActivity";
+    private static final int LEVEL_LAND = 1;
+    private static final int LEVEL_TAKEOFF = 0;
 
     /**
      * Sensibilité du joystick pour les déplacements. Plus la valeur est élevée, plus le drône
@@ -34,10 +37,6 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
      * Cette valeur doit être comprise entre 0 (insensible) et 100 (très sensible).
      */
     private static final int SENSITIVITY = 50;
-
-    private static final int LEVEL_LAND = 1;
-    private static final int LEVEL_TAKEOFF = 0;
-
     private BebopVideoView mVideoView;
     private BebopDrone mDrone;
     /**
@@ -74,6 +73,7 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
     private ImageView mBatteryIndicator;
     private ProgressBar mBatteryBar;
     private ImageButton mTakeoffLandButton;
+    private ProgressDialog mConnectionDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,18 +132,34 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
     @Override
     protected void onStart() {
         super.onStart();
-        if (mDrone != null && !mDrone.connect()) {
-            Toast.makeText(this, "Error while connecting to the drone.",
-                    Toast.LENGTH_LONG).show();
+        if (mDrone != null && !(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
+                .equals(mDrone.getConnectionState()))) {
+            mConnectionDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+            mConnectionDialog.setIndeterminate(true);
+            mConnectionDialog.setMessage(getString(R.string.connecting));
+            mConnectionDialog.setCancelable(false);
+            mConnectionDialog.show();
+
+            if (!mDrone.connect()) {
+                Toast.makeText(this, R.string.error_connecting, Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if (mDrone != null && !mDrone.disconnect()) {
-            Toast.makeText(this, "error while disconnecting to the drone.",
-                    Toast.LENGTH_LONG).show();
+    public void onBackPressed() {
+        if (mDrone != null) {
+            mConnectionDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+            mConnectionDialog.setIndeterminate(true);
+            mConnectionDialog.setMessage(getString(R.string.disconnecting));
+            mConnectionDialog.setCancelable(false);
+            mConnectionDialog.show();
+
+            if (!mDrone.disconnect()) {
+                Toast.makeText(this, R.string.error_disconnecting, Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
     }
 
@@ -158,17 +174,25 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
      * Sert à prendre une photo.
      */
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             mDrone.takePicture();
             return true;
         }
-        return super.onKeyUp(keyCode, event);
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        Log.d(TAG, "onDroneConnectionChanged() called with: state = [" + state + "]");
+        switch (state) {
+            case ARCONTROLLER_DEVICE_STATE_RUNNING:
+                mConnectionDialog.dismiss();
+                break;
+            case ARCONTROLLER_DEVICE_STATE_STOPPED:
+                // Si la déconnexion est un succès, retour à l'activité précédente
+                mConnectionDialog.dismiss();
+                finish();
+        }
     }
 
     @Override
@@ -179,7 +203,6 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
 
     @Override
     public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-        Log.d(TAG, "onPilotingStateChanged() called with: state = [" + state + "]");
         switch (state) {
             case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
                 mTakeoffLandButton.setImageLevel(LEVEL_TAKEOFF);

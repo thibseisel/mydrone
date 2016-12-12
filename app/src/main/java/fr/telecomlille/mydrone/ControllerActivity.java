@@ -1,5 +1,6 @@
 package fr.telecomlille.mydrone;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
     private ImageView mBatteryIndicator;
     private ProgressBar mBatteryBar;
     private ImageButton mTakeoffLandButton;
+    private ProgressDialog mConnectionDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,22 +57,33 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
     @Override
     protected void onStart() {
         super.onStart();
-        if (mDrone != null && !ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
-                .equals(mDrone.getConnectionState())) {
+        if (mDrone != null && !(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
+                .equals(mDrone.getConnectionState()))) {
+            mConnectionDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+            mConnectionDialog.setIndeterminate(true);
+            mConnectionDialog.setMessage(getString(R.string.connecting));
+            mConnectionDialog.setCancelable(false);
+            mConnectionDialog.show();
+
             if (!mDrone.connect()) {
-                Toast.makeText(this, "Error while connecting to the drone.",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.error_connecting, Toast.LENGTH_LONG).show();
+                finish();
             }
         }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    public void onBackPressed() {
         if (mDrone != null) {
+            mConnectionDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+            mConnectionDialog.setIndeterminate(true);
+            mConnectionDialog.setMessage(getString(R.string.disconnecting));
+            mConnectionDialog.setCancelable(false);
+            mConnectionDialog.show();
+
             if (!mDrone.disconnect()) {
-                Toast.makeText(this, "error while disconnecting to the drone.",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.error_disconnecting, Toast.LENGTH_LONG).show();
+                finish();
             }
         }
     }
@@ -276,7 +289,15 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
 
     @Override
     public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        Log.d(TAG, "onDroneConnectionChanged() called with: state = [" + state + "]");
+        switch (state) {
+            case ARCONTROLLER_DEVICE_STATE_RUNNING:
+                mConnectionDialog.dismiss();
+                break;
+            case ARCONTROLLER_DEVICE_STATE_STOPPED:
+                // Si la déconnexion est un succès, retour à l'activité précédente
+                mConnectionDialog.dismiss();
+                finish();
+        }
     }
 
     @Override

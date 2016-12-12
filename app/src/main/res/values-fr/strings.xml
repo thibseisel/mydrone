@@ -23,4 +23,11 @@
     <string name="control_joystick">Joystick</string>
     <string name="control_pathdraw">Tracé</string>
     <string name="picture_saved">Photo sauvegardée</string>
+    <string name="connecting">Connexion…</string>
+    <string name="disconnecting">Déconnexion…</string>
+    <string name="error_connecting">Erreur lors de la connexion</string>
+    <string name="error_disconnecting">Erreur lors de la déconnexion</string>
+    <string name="room_dimensions">Dimensions de la pièce</string>
+    <string name="path_control_explanation">Placez le drône au centre de la pièce.</string>
+    <string name="ok">Valider</string>
 </resources>

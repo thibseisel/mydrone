@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -44,6 +43,7 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
 
         mAdapter = new PilotingModeAdapter(getContext());
+        mAdapter.setHasStableIds(true);
         mAdapter.setOnPilotingModeSelectedListener(mActivity);
     }
 
@@ -57,6 +57,7 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         mRecycler = (RecyclerView) view.findViewById(R.id.recyclerView);
         mRecycler.setAdapter(mAdapter);
+        mRecycler.setHasFixedSize(true);
     }
 
     @Override

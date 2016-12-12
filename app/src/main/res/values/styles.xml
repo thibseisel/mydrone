@@ -25,4 +25,8 @@
         <item name="android:tint">@android:color/white</item>
         <item name="android:scaleType">fitCenter</item>
     </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/mtrl_pink_a400</item>
+    </style>
 </resources>
