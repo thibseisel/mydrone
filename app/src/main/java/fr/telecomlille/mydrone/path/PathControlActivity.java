@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
@@ -27,6 +28,9 @@ import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.DrawPathView;
 
+import static fr.telecomlille.mydrone.ControllerActivity.LEVEL_LAND;
+import static fr.telecomlille.mydrone.ControllerActivity.LEVEL_TAKEOFF;
+
 public class PathControlActivity extends AppCompatActivity
         implements DrawPathView.PathListener, PathControlTask.TaskListener, BebopDrone.Listener {
 
@@ -38,9 +42,11 @@ public class PathControlActivity extends AppCompatActivity
     private DrawPathView mPathView;
     private PathControlTask mPathControlTask;
     private float[] mInitialPosInRoom;
+    private ImageView mBatteryIndicator;
     private float mRoomSizeX;
     private float mRoomSizeY;
     private ProgressDialog mConnectionDialog;
+    private ImageButton mTakeoffLandButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +60,9 @@ public class PathControlActivity extends AppCompatActivity
         mDrone = new BebopDrone(this, deviceService);
         mDrone.addListener(this);
 
-        ImageButton mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
+        mBatteryIndicator = (ImageView) findViewById(R.id.battery_indicator);
+
+        mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
         mTakeoffLandButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,7 +97,6 @@ public class PathControlActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-
         if (mDrone != null && !(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
                 .equals(mDrone.getConnectionState()))) {
             mConnectionDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
@@ -136,8 +143,7 @@ public class PathControlActivity extends AppCompatActivity
                         mRoomSizeX = Float.parseFloat(textRoomX.getText().toString());
                         EditText textRoomY = (EditText) dialogView.findViewById(R.id.txtRoomDimY);
                         mRoomSizeY = Float.parseFloat(textRoomY.getText().toString());
-                        mInitialPosInRoom = new float[]{mRoomSizeX/2, mRoomSizeY/2};
-                        dialog.dismiss();
+                        mInitialPosInRoom = new float[]{mRoomSizeX / 2, mRoomSizeY / 2};
                     }
                 }).create().show();
     }
@@ -189,41 +195,46 @@ public class PathControlActivity extends AppCompatActivity
 
     @Override
     public void onBatteryChargeChanged(int batteryPercentage) {
-
+        mBatteryIndicator.setImageLevel(batteryPercentage);
     }
 
     @Override
     public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-
+        switch (state) {
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                mTakeoffLandButton.setImageLevel(LEVEL_TAKEOFF);
+                break;
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                mTakeoffLandButton.setImageLevel(LEVEL_LAND);
+                break;
+        }
     }
 
     @Override
     public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-
+        // On ne prend pas de photos avec ce mode de pilotage
     }
 
     @Override
     public void configureDecoder(ARControllerCodec codec) {
-
+        // On n'affiche pas de vidéo en temps réel avec ce mode de pilotage
     }
 
     @Override
     public void onFrameReceived(ARFrame frame) {
-
+        // On n'affiche pas de vidéo en temps réel avec ce mode de pilotage
     }
 
     @Override
     public void onMatchingMediasFound(int nbMedias) {
-
     }
 
     @Override
     public void onDownloadProgressed(String mediaName, int progress) {
-
     }
 
     @Override
     public void onDownloadComplete(String mediaName) {
-
     }
 }

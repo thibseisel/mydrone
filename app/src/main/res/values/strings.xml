@@ -29,4 +29,6 @@
     <string name="ok">OK</string>
     <string name="path_control_explanation">Put the drone in the middle of the room.</string>
     <string name="room_dimensions">Room measurements</string>
+    <string name="label_width">Width (meters)</string>
+    <string name="label_length">Length (meters)</string>
 </resources>

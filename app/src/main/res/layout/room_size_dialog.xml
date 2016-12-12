@@ -1,44 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="16dp">
 
-    <TextView
-        android:id="@+id/TextViewDimX"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16sp"
-        android:text="Dimensions selon l'axe X"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="20sp" />
+        android:layout_height="wrap_content">
 
-    <EditText
-        android:id="@+id/txtRoomDimX"
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/txtRoomDimX"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/label_width"
+            android:inputType="numberDecimal"
+            android:textSize="20sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Valeur en mètres"
-        android:inputType="numberDecimal"
-        android:textSize="20sp" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/TextViewDimY"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16sp"
-        android:text="Dimensions selon l'axe Y"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/txtRoomDimY"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Valeur en mètres"
-        android:inputType="numberDecimal"
-        android:textSize="20sp" />
-
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/txtRoomDimY"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/label_length"
+            android:inputType="numberDecimal"
+            android:textSize="20sp"/>
+    </android.support.design.widget.TextInputLayout>
 </LinearLayout>

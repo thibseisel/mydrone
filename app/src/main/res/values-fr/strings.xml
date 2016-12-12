@@ -30,4 +30,6 @@
     <string name="room_dimensions">Dimensions de la pièce</string>
     <string name="path_control_explanation">Placez le drône au centre de la pièce.</string>
     <string name="ok">Valider</string>
+    <string name="label_length">Longueur (mètres)</string>
+    <string name="label_width">Largeur (mètres)</string>
 </resources>

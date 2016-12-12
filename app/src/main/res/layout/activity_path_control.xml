@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:id="@+id/activity_path_control"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="fr.telecomlille.mydrone.path.PathControlActivity"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="fr.telecomlille.mydrone.path.PathControlActivity">
 
     <fr.telecomlille.mydrone.view.DrawPathView
         android:id="@+id/drawPathView"
@@ -19,8 +19,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:contentDescription="@string/take_off"
-        app:srcCompat="@drawable/takeoff_land"
-        android:tint="?colorAccent"/>
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/takeoff_land"/>
 
     <!-- Atterrissage d'urgence -->
     <Button
@@ -30,7 +30,17 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/emergency"
-        tools:ignore="RelativeOverlap"/>
+        android:text="@string/emergency"/>
+
+    <!-- Indicateur de batterie -->
+    <ImageView
+        android:id="@+id/battery_indicator"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/battery_level_indicator"
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/battery_state_list"/>
 
 </RelativeLayout>
