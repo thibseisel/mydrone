@@ -475,6 +475,7 @@ public class BebopDrone {
     }
 
     public void moveTowards(float dX, float dY, float dZ, float dPsi){
+        mDeviceController.getFeatureARDrone3().sendPilotingSettingsSetAutonomousFlightMaxHorizontalSpeed(1.5f);
         mDeviceController.getFeatureARDrone3().sendPilotingMoveBy(dX, dY, dZ, dPsi);
     }
 

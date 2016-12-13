@@ -54,6 +54,7 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
         mScreenWidth = mPathView.getWidth();
         ARDiscoveryDeviceService deviceService = caller.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
         mDrone = new BebopDrone(this, deviceService);
+        mDrone.addListener(this);
         mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
         showDimensionDialog();
         mMoveQueue = new LinkedList<>();
@@ -135,28 +136,21 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
             actualY = pointsInPath.get(i)[1];
             if (actualX <= previousX) {
                 distX = (actualX - previousX) * mRealDistLeft / previousX;
-                mRealDistRight += Math.abs(distX);
-                mRealDistLeft -= Math.abs(distX);
             } else {
                 distX = (actualX - previousX) * mRealDistRight / (mScreenWidth - previousX);
-                mRealDistRight -= Math.abs(distX);
-                mRealDistLeft += Math.abs(distX);
             }
             if (actualY <= previousY) {
                 distY = (previousY - actualY) * mRealDistFor / previousY;
-                mRealDistFor -= Math.abs(distY);
-                mRealDistBack += Math.abs(distY);
             } else {
                 distY = (previousY - actualY) * mRealDistBack / (mScreenHeight - previousY);
-                mRealDistFor += Math.abs(distY);
-                mRealDistBack -= Math.abs(distY);
             }
             mMoveQueue.add(new float[]{distY, distX});
             previousX = actualX;
             previousY = actualY;
         }
-        float[] nextCoordinates = mMoveQueue.poll();
-        if (nextCoordinates != null) {
+
+        if (!mMoveQueue.isEmpty()) {
+            float[] nextCoordinates = mMoveQueue.poll();
             mDrone.moveTowards(nextCoordinates[0], nextCoordinates[1], 0, 0);
         }
     }
@@ -225,6 +219,8 @@ public class PathControlActivity extends AppCompatActivity implements DrawPathVi
         if (!mMoveQueue.isEmpty()) {
             float[] nextCoordinates = mMoveQueue.poll();
             mDrone.moveTowards(nextCoordinates[0], nextCoordinates[1], 0, 0);
+        }else{
+            mPathView.setDrawingEnabled(true);
         }
     }
 }
