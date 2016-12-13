@@ -1,17 +1,17 @@
 package fr.telecomlille.mydrone.recognition;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
-
-//import org.bytedeco.javacpp.opencv_objdetect;
 
 import fr.telecomlille.mydrone.MainActivity;
 import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.BebopVideoView;
+
+//import org.bytedeco.javacpp.opencv_objdetect;
 
 public class RecognitionActivity extends AppCompatActivity {
 
