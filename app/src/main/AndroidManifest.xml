@@ -26,7 +26,7 @@
             android:name=".ControllerActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"/>
 
         <receiver android:name=".MainActivity$WifiStateChangedReceiver">
             <intent-filter>
@@ -38,17 +38,19 @@
             android:name=".JoystickActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"/>
         <activity
             android:name=".accelerometer.AccelerometerActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"/>
         <activity
             android:name=".path.PathControlActivity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen"></activity>
-        <activity android:name=".recognition.RecognitionActivity"></activity>
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"/>
+        <activity android:name=".recognition.RecognitionActivity"/>
+        <activity android:name=".MoveByActivity">
+        </activity>
     </application>
 
 </manifest>

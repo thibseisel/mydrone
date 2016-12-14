@@ -95,21 +95,24 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
                 R.drawable.ic_control_button_24dp,
                 R.drawable.ic_control_joystick_24dp,
                 R.drawable.ic_control_accelerometer_24dp,
-                R.drawable.ic_control_path_24dp
+                R.drawable.ic_control_path_24dp,
+                R.drawable.ic_flight_takeoff_24dp
         };
         @StringRes
         private static final int[] LABELS = {
                 R.string.control_buttons,
                 R.string.control_joystick,
                 R.string.control_accelerometer,
-                R.string.control_pathdraw
+                R.string.control_pathdraw,
+                R.string.app_name
         };
 
         private static final Class[] ACTIVITIES = new Class[]{
                 ControllerActivity.class,
                 JoystickActivity.class,
                 AccelerometerActivity.class,
-                PathControlActivity.class
+                PathControlActivity.class,
+                MoveByActivity.class
         };
 
         private final LayoutInflater mInflater;

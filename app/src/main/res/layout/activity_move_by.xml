@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/activity_move_by"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="fr.telecomlille.mydrone.MoveByActivity"
+    tools:ignore="ContentDescription">
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/meters"
+        android:max="20"
+        android:progress="10"/>
+
+    <Button
+        android:id="@+id/btn_emergency"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seekbar"
+        android:layout_centerHorizontal="true"
+        android:text="@string/emergency"/>
+
+    <TextView
+        android:id="@+id/meters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        tools:text="12m"/>
+
+    <ImageButton
+        android:id="@+id/btn_takeoff_land"
+        style="@style/AppTheme.ControlButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/takeoff_land"/>
+
+    <ImageButton
+        android:id="@+id/btn_stop"
+        style="@style/AppTheme.ControlButton"
+        android:layout_centerInParent="true"
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/ic_control_joystick_24dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_left"
+        style="@style/AppTheme.ControlButton"
+        android:layout_alignTop="@id/btn_stop"
+        android:layout_toStartOf="@id/btn_stop"
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/ic_move_left_24dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_right"
+        style="@style/AppTheme.ControlButton"
+        android:layout_alignTop="@id/btn_stop"
+        android:layout_toEndOf="@id/btn_stop"
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/ic_move_right_24dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_forward"
+        style="@style/AppTheme.ControlButton"
+        android:layout_above="@id/btn_stop"
+        android:layout_alignStart="@id/btn_stop"
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/ic_move_forward_24dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_backward"
+        style="@style/AppTheme.ControlButton"
+        android:layout_alignStart="@id/btn_stop"
+        android:layout_below="@id/btn_stop"
+        android:tint="?colorPrimary"
+        app:srcCompat="@drawable/ic_move_back_24dp"/>
+</RelativeLayout>

@@ -114,10 +114,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (R.id.action_drawpath == item.getItemId()) {
-            new PilotingModeFragment().show(getSupportFragmentManager(), null);
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

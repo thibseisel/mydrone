@@ -21,6 +21,7 @@ import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -199,14 +200,18 @@ public class PathControlActivity extends AppCompatActivity
 
         if (!mMoveQueue.isEmpty()) {
             float[] nextCoordinates = mMoveQueue.poll();
-            mDrone.moveTowards(nextCoordinates[0], nextCoordinates[1], 0, 0);
+            Log.d(TAG, "onPathFinished: first move=" + Arrays.toString(nextCoordinates));
+
+            // Apparemment, il faut que le Flag soit à zéro pour les moveBy
+            mDrone.setFlag(BebopDrone.FLAG_DISABLED);
+            mDrone.moveBy(nextCoordinates[0], nextCoordinates[1], 0, 0);
         }
     }
 
     @Override
     public void onPathCanceled() {
         Log.d(TAG, "onPathCanceled: Cancel current path !");
-        mDrone.moveTowards(0, 0, 0, 0);
+        mDrone.moveBy(0, 0, 0, 0);
         mPathView.setDrawingEnabled(true);
     }
 
@@ -220,9 +225,11 @@ public class PathControlActivity extends AppCompatActivity
         mInitialPosInRoom[0] = mRealDistLeft;
         mInitialPosInRoom[1] = mRealDistFor;
         if (!mMoveQueue.isEmpty()) {
+            Log.d(TAG, "onRelativeMoveFinished: " + mMoveQueue.size() + " moves pending.");
             float[] nextCoordinates = mMoveQueue.poll();
-            mDrone.moveTowards(nextCoordinates[0], nextCoordinates[1], 0, 0);
+            mDrone.moveBy(nextCoordinates[0], nextCoordinates[1], 0, 0);
         } else {
+            Log.d(TAG, "onRelativeMoveFinished: move finished !");
             mPathView.setDrawingEnabled(true);
         }
     }

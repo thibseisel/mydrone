@@ -219,6 +219,7 @@ public class BebopDrone {
             } else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGEVENT_MOVEBYEND) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if (args != null) {
+                    Log.d(TAG, "onCommandReceived: moveByFinished");
                     final float dX = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGEVENT_MOVEBYEND_DX)).doubleValue();
                     final float dY = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGEVENT_MOVEBYEND_DY)).doubleValue();
                     final float dZ = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGEVENT_MOVEBYEND_DZ)).doubleValue();
@@ -473,11 +474,22 @@ public class BebopDrone {
         }
     }
 
-    public void moveTowards(float dX, float dY, float dZ, float dPsi) {
-        mDeviceController.getFeatureARDrone3().sendPilotingSettingsSetAutonomousFlightMaxHorizontalSpeed(1.5f);
+    /**
+     * Fait se déplacer le drône selon une trajectoire rectiligne.
+     * La méthode {@link Listener#onRelativeMoveFinished} est appelée lorsque le mouvement est terminé.
+     * Si on appelle à nouveau cette méthode alors que le déplacement du drône n'est pas terminé,
+     * alors le déplacement est interrompu et {@link Listener#onRelativeMoveFinished}
+     * est appelée immédiatement.
+     *
+     * @param dX   déplacement en mètres selon l'axe x (avant->arrière)
+     * @param dY   déplacement en mètres selon l'axe y (gauche->droite)
+     * @param dZ   déplacement en mètres selon l'axe z (haut->bas)
+     * @param dPsi angle de rotation en radians.
+     *             La modification de l'angle n'influence pas la trajectoire du drône.
+     */
+    public void moveBy(float dX, float dY, float dZ, float dPsi) {
         mDeviceController.getFeatureARDrone3().sendPilotingMoveBy(dX, dY, dZ, dPsi);
     }
-
 
     /**
      * Download the last flight medias
@@ -683,6 +695,16 @@ public class BebopDrone {
         @MainThread
         void onDownloadComplete(String mediaName);
 
+        /**
+         * Appelé lorsque le drône a fini de se déplacer suite à l'appel à {@link #moveBy}.
+         *
+         * @param dX            déplacement en mètres selon l'axe x (avant/arrière)
+         * @param dY            déplacement en mètres selon l'axe y (gauche/droite)
+         * @param dZ            déplacement en mètres selon l'axe z (bas/haut)
+         * @param dPsi          angle de rotation du drône en radians
+         * @param isInterrupted indique si le mouvement a été interrompu
+         */
+        @MainThread
         void onRelativeMoveFinished(float dX, float dY, float dZ, float dPsi, boolean isInterrupted);
     }
 }
