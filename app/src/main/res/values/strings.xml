@@ -31,4 +31,7 @@
     <string name="room_dimensions">Room measurements</string>
     <string name="label_width">Width (meters)</string>
     <string name="label_length">Length (meters)</string>
+    <string name="control_autonomous">Autonomous</string>
+    <string name="unfollow">Unfollow</string>
+    <string name="follow_me">Follow me</string>
 </resources>

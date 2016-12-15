@@ -105,7 +105,7 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
                 R.string.control_joystick,
                 R.string.control_accelerometer,
                 R.string.control_pathdraw,
-                R.string.app_name
+                R.string.control_autonomous
         };
 
         private static final Class[] ACTIVITIES = new Class[]{

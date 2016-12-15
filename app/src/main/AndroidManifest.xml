@@ -48,7 +48,11 @@
             android:name=".path.PathControlActivity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen"/>
-        <activity android:name=".recognition.RecognitionActivity"/>
+
+        <activity
+            android:name=".recognition.RecognitionActivity"
+            android:screenOrientation="landscape"/>
+
         <activity android:name=".path.MoveByActivity">
         </activity>
     </application>

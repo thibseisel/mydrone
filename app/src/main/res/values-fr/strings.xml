@@ -32,4 +32,5 @@
     <string name="ok">Valider</string>
     <string name="label_length">Longueur (mètres)</string>
     <string name="label_width">Largeur (mètres)</string>
+    <string name="control_autonomous">Autonome</string>
 </resources>
