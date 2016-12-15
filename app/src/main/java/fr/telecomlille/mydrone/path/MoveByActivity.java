@@ -1,4 +1,4 @@
-package fr.telecomlille.mydrone;
+package fr.telecomlille.mydrone.path;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -20,6 +20,8 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 import java.util.Locale;
 
+import fr.telecomlille.mydrone.MainActivity;
+import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 
 public class MoveByActivity extends AppCompatActivity implements BebopDrone.Listener, View.OnClickListener {
@@ -81,7 +83,7 @@ public class MoveByActivity extends AppCompatActivity implements BebopDrone.List
         mMetersBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar view, int progress, boolean fromUser) {
-                mMetersText.setText(String.format(Locale.FRANCE, "%fm", progress / 10f));
+                mMetersText.setText(String.format(Locale.FRANCE, "%fm", progress / 100f));
             }
 
             @Override
@@ -192,7 +194,7 @@ public class MoveByActivity extends AppCompatActivity implements BebopDrone.List
     @Override
     public void onClick(View view) {
         if (mDrone != null) {
-            float dist = mMetersBar.getProgress() / 10f;
+            float dist = mMetersBar.getProgress() / 100f;
             switch (view.getId()) {
                 case R.id.btn_forward:
                     mDrone.moveBy(dist, 0, 0, 0);

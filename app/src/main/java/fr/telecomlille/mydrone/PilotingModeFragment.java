@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import fr.telecomlille.mydrone.accelerometer.AccelerometerActivity;
+import fr.telecomlille.mydrone.path.MoveByActivity;
 import fr.telecomlille.mydrone.path.PathControlActivity;
 
 /**

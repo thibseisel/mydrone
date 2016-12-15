@@ -49,7 +49,7 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen"/>
         <activity android:name=".recognition.RecognitionActivity"/>
-        <activity android:name=".MoveByActivity">
+        <activity android:name=".path.MoveByActivity">
         </activity>
     </application>
 
