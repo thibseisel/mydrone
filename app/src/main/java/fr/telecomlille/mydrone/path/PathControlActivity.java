@@ -104,6 +104,8 @@ public class PathControlActivity extends AppCompatActivity
             mConnectionDialog.setCancelable(false);
             mConnectionDialog.show();
 
+            mDrone.land();
+
             if (!mDrone.connect()) {
                 Toast.makeText(this, R.string.error_connecting, Toast.LENGTH_LONG).show();
                 finish();

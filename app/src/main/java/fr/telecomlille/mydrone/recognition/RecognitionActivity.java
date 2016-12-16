@@ -18,8 +18,9 @@ import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_objdetect.CascadeClassifier;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,17 +42,30 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
     private ProgressDialog mConnectionDialog;
     private ImageButton mTakeoffLandButton;
     private CascadeClassifier mClassifier;
+    private final BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case BaseLoaderCallback.SUCCESS:
+                    loadCascade();
+                    break;
+                default:
+                    super.onManagerConnected(status);
+                    break;
+            }
+        }
+    };
     private boolean mIsEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recognition);
-        mVideoView = (BebopVideoView) this.findViewById(R.id.videoView);
+        initIHM();
+
         mScreenHeight = mVideoView.getHeight();
         mScreenWidth = mVideoView.getWidth();
 
-        loadCascade();
         ARDiscoveryDeviceService deviceService = getIntent()
                 .getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
 
@@ -63,9 +77,16 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
         mDrone = new BebopDrone(this, deviceService);
         mDrone.addListener(this);
 
-        initIHM();
+        // Démarre le chargement d'OpenCV
+        if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback)) {
+            Log.e(TAG, "onCreate: failed to initialize OpenCV");
+        }
     }
 
+    /**
+     * Copie le fichiers XML contenant les instructions de reconnaissance de visage
+     * dans les fichiers temporaires, puis le charge avec le CascadeClassifier.
+     */
     private void loadCascade() {
         try {
             InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_default);
@@ -83,12 +104,11 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
 
             mClassifier = new CascadeClassifier(mCascadeFile.getAbsolutePath());
             if (mClassifier.empty()) {
-                Log.e(TAG, "--(!)Error loading A\n");
+                Log.e(TAG, "Error while loading classifier file.");
             } else {
                 Log.d(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
             }
         } catch (IOException e) {
-            e.printStackTrace();
             Log.e("MyActivity", "Failed to load cascade.", e);
         }
     }
@@ -120,7 +140,6 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
                 }
             }
         });
-        // Atterrissage d'urgence
         findViewById(R.id.btn_emergency).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -155,6 +174,8 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
             mConnectionDialog.setMessage(getString(R.string.disconnecting));
             mConnectionDialog.setCancelable(false);
             mConnectionDialog.show();
+
+            mDrone.land();
 
             if (!mDrone.disconnect()) {
                 Toast.makeText(this, R.string.error_disconnecting, Toast.LENGTH_LONG).show();
@@ -237,27 +258,24 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
 
     }
 
+
     public void enableFollowing(boolean enable) {
+        mIsEnabled = enable;
         if (!enable) {
-            mDrone.setFlag((byte) 0);
+            mDrone.setFlag(BebopDrone.FLAG_DISABLED);
             mDrone.setRoll(0);
             mDrone.setPitch(0);
             mDrone.setYaw(0);
-            mVideoView.setDrawingCacheEnabled(false);
-        } else {
-            mVideoView.setDrawingCacheEnabled(true);
-            mVideoView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
         }
-        mIsEnabled = enable;
     }
 
     public void onImageReceived(ARFrame frame) {
-        if (mIsEnabled) {
-            opencv_core.RectVector faces = new opencv_core.RectVector();
-            opencv_core.Mat image = new opencv_core.Mat(frame.getByteData());
+        /*if (mIsEnabled) {
+            RectVector faces = new RectVector();
+            Mat image = new Mat(frame.getByteData());
             mClassifier.detectMultiScale(image, faces);
             if (faces.size() != 0) {
-                opencv_core.Rect faceConsidered = faces.get(0);
+                Rect faceConsidered = faces.get(0);
                 //Affichage du rectangle
                 //opencv_imgproc.rectangle(image, faceConsidered, new opencv_core.Scalar(0, 255, 0, 1));
                 int[] faceCenterCoordinates;
@@ -279,6 +297,6 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
                     mDrone.setGaz(0);
                 }
             }
-        }
+        }*/
     }
 }

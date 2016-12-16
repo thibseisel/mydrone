@@ -34,8 +34,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:textOff="@string/unfollow"
-        android:textOn="@string/follow_me"
+        android:textOff="@string/follow_me"
+        android:textOn="@string/unfollow"
         tools:ignore="RelativeOverlap"/>
 
 </RelativeLayout>

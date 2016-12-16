@@ -9,7 +9,7 @@
 
     <application
         android:name=".MyApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -51,7 +51,8 @@
 
         <activity
             android:name=".recognition.RecognitionActivity"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"/>
 
         <activity android:name=".path.MoveByActivity">
         </activity>

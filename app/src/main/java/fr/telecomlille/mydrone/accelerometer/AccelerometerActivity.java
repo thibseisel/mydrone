@@ -207,6 +207,8 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
             mConnectionDialog.setCancelable(false);
             mConnectionDialog.show();
 
+            mDrone.land();
+
             if (!mDrone.disconnect()) {
                 Toast.makeText(this, R.string.error_disconnecting, Toast.LENGTH_LONG).show();
                 finish();

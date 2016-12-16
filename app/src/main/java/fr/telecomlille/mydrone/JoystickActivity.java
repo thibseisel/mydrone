@@ -156,6 +156,8 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
             mConnectionDialog.setCancelable(false);
             mConnectionDialog.show();
 
+            mDrone.land();
+
             if (!mDrone.disconnect()) {
                 Toast.makeText(this, R.string.error_disconnecting, Toast.LENGTH_LONG).show();
                 finish();

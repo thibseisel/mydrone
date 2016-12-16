@@ -81,6 +81,8 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
             mConnectionDialog.setCancelable(false);
             mConnectionDialog.show();
 
+            mDrone.land();
+
             if (!mDrone.disconnect()) {
                 Toast.makeText(this, R.string.error_disconnecting, Toast.LENGTH_LONG).show();
                 finish();
@@ -100,12 +102,12 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
      * Sert à prendre une photo.
      */
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             mDrone.takePicture();
-            return false;
+            return true;
         }
-        return super.onKeyUp(keyCode, event);
+        return super.onKeyDown(keyCode, event);
     }
 
     /**
