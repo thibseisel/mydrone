@@ -2,6 +2,8 @@ package fr.telecomlille.mydrone.recognition;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,6 +22,10 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
 import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
@@ -270,25 +276,35 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
     }
 
     public void onImageReceived(ARFrame frame) {
-        /*if (mIsEnabled) {
-            RectVector faces = new RectVector();
-            Mat image = new Mat(frame.getByteData());
+        if (mIsEnabled) {
+            byte[] data = frame.getByteData();
+            Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+            if (bmp == null) {
+                Log.v(TAG, "onImageReceived: cant decode.");
+                return;
+            }
+            Mat image = new Mat();
+            Utils.bitmapToMat(bmp, image);
+
+            MatOfRect faces = new MatOfRect();
             mClassifier.detectMultiScale(image, faces);
-            if (faces.size() != 0) {
-                Rect faceConsidered = faces.get(0);
+
+            if (faces.size().width != 0 && faces.size().height != 0) {
+                Log.d(TAG, "onImageReceived: face recognized !");
+                Rect faceConsidered = faces.toArray()[0];
                 //Affichage du rectangle
                 //opencv_imgproc.rectangle(image, faceConsidered, new opencv_core.Scalar(0, 255, 0, 1));
                 int[] faceCenterCoordinates;
-                if (image.arrayWidth() != mVideoView.getWidth() || image.arrayHeight() != mVideoView.getHeight()) {
-                    faceCenterCoordinates = new int[]{faceConsidered.x() + (faceConsidered.width() / 2), faceConsidered.y() + (faceConsidered.height() / 2)};
+                if (image.size().width != mVideoView.getWidth() || image.size().height != mVideoView.getHeight()) {
+                    faceCenterCoordinates = new int[]{faceConsidered.x + (faceConsidered.width / 2), faceConsidered.y + (faceConsidered.height/ 2)};
                 } else {
-                    faceCenterCoordinates = new int[]{faceConsidered.x() * mVideoView.getWidth() / image.size().width(),
-                            faceConsidered.y() * mVideoView.getHeight() / image.size().height()};
+                    faceCenterCoordinates = new int[]{((int) (faceConsidered.x * mVideoView.getWidth() / image.size().width)),
+                            ((int) (faceConsidered.y * mVideoView.getHeight() / image.size().height))};
                 }
-                image.size().height();
-                mDrone.setFlag((byte) 1);
-                mDrone.setRoll(((int) (10 * (faceCenterCoordinates[0] - mScreenWidth / 2) / Math.abs(faceCenterCoordinates[0] - mScreenWidth / 2))));
-                mDrone.setGaz(((int) (10 * (mScreenHeight / 2 - faceCenterCoordinates[1]) / Math.abs(mScreenHeight / 2 - faceCenterCoordinates[1]))));
+                //image.size().height();
+                mDrone.setFlag(BebopDrone.FLAG_ENABLED);
+                mDrone.setRoll(((10 * (faceCenterCoordinates[0] - mScreenWidth / 2) / Math.abs(faceCenterCoordinates[0] - mScreenWidth / 2))));
+                mDrone.setGaz(((10 * (mScreenHeight / 2 - faceCenterCoordinates[1]) / Math.abs(mScreenHeight / 2 - faceCenterCoordinates[1]))));
 
                 if ((faceCenterCoordinates[0] < mScreenWidth / 2 + 10) && (faceCenterCoordinates[0] > mScreenWidth / 2 - 10)) {
                     mDrone.setRoll(0);
@@ -297,6 +313,6 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
                     mDrone.setGaz(0);
                 }
             }
-        }*/
+        }
     }
 }
