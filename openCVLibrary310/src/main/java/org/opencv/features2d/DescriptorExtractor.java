@@ -15,23 +15,22 @@ import java.util.List;
 //javadoc: javaDescriptorExtractor
 public class DescriptorExtractor {
 
+    private static final int OPPONENTEXTRACTOR = 1000;
     public static final int
-            SIFT = 1,
-            SURF = 2,
-            ORB = 3,
-            BRIEF = 4,
-            BRISK = 5,
-            FREAK = 6,
-            AKAZE = 7,
-            OPPONENT_SIFT = OPPONENTEXTRACTOR + SIFT,
-            OPPONENT_SURF = OPPONENTEXTRACTOR + SURF,
-            OPPONENT_ORB = OPPONENTEXTRACTOR + ORB,
-            OPPONENT_BRIEF = OPPONENTEXTRACTOR + BRIEF,
-            OPPONENT_BRISK = OPPONENTEXTRACTOR + BRISK,
-            OPPONENT_FREAK = OPPONENTEXTRACTOR + FREAK,
-            OPPONENT_AKAZE = OPPONENTEXTRACTOR + AKAZE;
-    private static final int
-            OPPONENTEXTRACTOR = 1000;
+    SIFT = 1,
+    SURF = 2,
+    ORB = 3,
+    BRIEF = 4,
+    BRISK = 5,
+    FREAK = 6,
+    AKAZE = 7,
+    OPPONENT_SIFT = OPPONENTEXTRACTOR + SIFT,
+    OPPONENT_SURF = OPPONENTEXTRACTOR + SURF,
+    OPPONENT_ORB = OPPONENTEXTRACTOR + ORB,
+    OPPONENT_BRIEF = OPPONENTEXTRACTOR + BRIEF,
+    OPPONENT_BRISK = OPPONENTEXTRACTOR + BRISK,
+    OPPONENT_FREAK = OPPONENTEXTRACTOR + FREAK,
+    OPPONENT_AKAZE = OPPONENTEXTRACTOR + AKAZE;
     protected final long nativeObj;
 
 
