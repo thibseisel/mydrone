@@ -242,7 +242,9 @@ public class BebopDrone {
                     float speedX = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDX)).doubleValue();
                     float speedY = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDY)).doubleValue();
                     float speedZ = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDZ)).doubleValue();
-                    Log.d(TAG, String.format("onCommandReceived: speed=[%f, %f, %f]", speedX, speedY, speedZ));
+                    if (speedX > 0 || speedY > 0 || speedZ > 0) {
+                        Log.d(TAG, String.format("onCommandReceived: speed=[%f, %f, %f]", speedX, speedY, speedZ));
+                    }
                 }
             }
         }

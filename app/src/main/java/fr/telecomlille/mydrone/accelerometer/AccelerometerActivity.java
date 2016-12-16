@@ -43,7 +43,7 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
 
     private ProgressDialog mConnectionDialog;
 
-    // TODO Utiliser notre classe OrientationSensor
+    // TODO Utiliser notre classe OrientationSensor ?
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +175,7 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
     @Override
     protected void onStart() {
         super.onStart();
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_UI);
 
         if (mDrone != null && !(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING
                 .equals(mDrone.getConnectionState()))) {
@@ -189,6 +190,12 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
                 finish();
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mSensorManager.unregisterListener(this, mSensor);
     }
 
     @Override

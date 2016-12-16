@@ -14,8 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import fr.telecomlille.mydrone.accelerometer.AccelerometerActivity;
-import fr.telecomlille.mydrone.path.MoveByActivity;
 import fr.telecomlille.mydrone.path.PathControlActivity;
+import fr.telecomlille.mydrone.recognition.RecognitionActivity;
 
 /**
  * Une boite de dialogue qui apparait en bas de l'écran lorsque l'utilisateur
@@ -97,7 +97,7 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
                 R.drawable.ic_control_joystick_24dp,
                 R.drawable.ic_control_accelerometer_24dp,
                 R.drawable.ic_control_path_24dp,
-                R.drawable.ic_flight_takeoff_24dp
+                R.drawable.ic_control_face_24dp
         };
         @StringRes
         private static final int[] LABELS = {
@@ -105,7 +105,7 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
                 R.string.control_joystick,
                 R.string.control_accelerometer,
                 R.string.control_pathdraw,
-                R.string.control_autonomous
+                R.string.control_face
         };
 
         private static final Class[] ACTIVITIES = new Class[]{
@@ -113,7 +113,7 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
                 JoystickActivity.class,
                 AccelerometerActivity.class,
                 PathControlActivity.class,
-                MoveByActivity.class
+                RecognitionActivity.class
         };
 
         private final LayoutInflater mInflater;

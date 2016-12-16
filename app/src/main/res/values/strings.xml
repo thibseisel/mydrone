@@ -18,7 +18,7 @@
     <string name="yaw_left">Left</string>
     <string name="picture_saved">Picture saved</string>
     <string name="control_buttons">Buttons</string>
-    <string name="control_joystick">Joystick</string>
+    <string name="control_joystick">Joysticks</string>
     <string name="control_accelerometer">Accelerometer</string>
     <string name="choice_piloting_mode">Select a piloting mode</string>
     <string name="control_pathdraw">Path</string>
@@ -31,7 +31,7 @@
     <string name="room_dimensions">Room measurements</string>
     <string name="label_width">Width (meters)</string>
     <string name="label_length">Length (meters)</string>
-    <string name="control_autonomous">Autonomous</string>
+    <string name="control_face">Face detection</string>
     <string name="unfollow">Unfollow</string>
     <string name="follow_me">Follow me</string>
 </resources>

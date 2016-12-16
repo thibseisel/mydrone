@@ -1,9 +1,10 @@
 package fr.telecomlille.mydrone.recognition;
 
 import android.app.ProgressDialog;
-import android.graphics.Bitmap;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -18,25 +19,29 @@ import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_objdetect;
-import org.bytedeco.javacpp.opencv_imgproc;
+import org.bytedeco.javacpp.opencv_objdetect.CascadeClassifier;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import fr.telecomlille.mydrone.MainActivity;
 import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.BebopVideoView;
 
-
 public class RecognitionActivity extends AppCompatActivity implements BebopDrone.Listener {
+
+    private static final String TAG = "RecognitionActivity";
 
     private BebopVideoView mVideoView;
     private int mScreenWidth, mScreenHeight;
     private BebopDrone mDrone;
     private ProgressDialog mConnectionDialog;
-    private ToggleButton mFollowMe;
     private ImageButton mTakeoffLandButton;
-    private opencv_objdetect.CascadeClassifier mClassifier;
-    private boolean mIsEnabled;
+    private CascadeClassifier mClassifier;
+    private boolean mIsEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,18 +51,9 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
         mScreenHeight = mVideoView.getHeight();
         mScreenWidth = mVideoView.getWidth();
 
-        mClassifier = new opencv_objdetect.CascadeClassifier("file:///android_asset/haarcascade_frontalface_default.xml");
+        loadCascade();
         ARDiscoveryDeviceService deviceService = getIntent()
                 .getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
-        mIsEnabled = false;
-
-        mFollowMe = (ToggleButton) findViewById(R.id.btn_followme);
-        mFollowMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                enableFollowing(isChecked);
-            }
-        });
 
         if (deviceService == null) {
             throw new IllegalStateException("Calling Activity must start this Activity with an " +
@@ -70,10 +66,42 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
         initIHM();
     }
 
+    private void loadCascade() {
+        try {
+            InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_default);
+            File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+            File mCascadeFile = new File(cascadeDir, "haarcascade_frontalface_default.xml");
+            FileOutputStream os = new FileOutputStream(mCascadeFile);
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            is.close();
+            os.close();
+
+            mClassifier = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+            if (mClassifier.empty()) {
+                Log.e(TAG, "--(!)Error loading A\n");
+            } else {
+                Log.d(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("MyActivity", "Failed to load cascade.", e);
+        }
+    }
+
     private void initIHM() {
         mVideoView = (BebopVideoView) findViewById(R.id.videoView);
-
-        mFollowMe = (ToggleButton) findViewById(R.id.btn_followme);
+        ((ToggleButton) findViewById(R.id.btn_followme))
+                .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                        enableFollowing(isChecked);
+                    }
+                });
 
         mTakeoffLandButton = (ImageButton) findViewById(R.id.btn_takeoff_land);
         mTakeoffLandButton.setOnClickListener(new View.OnClickListener() {
@@ -162,7 +190,16 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
 
     @Override
     public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-
+        Log.d(TAG, "onPilotingStateChanged() called with: state = [" + state + "]");
+        switch (state) {
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                mTakeoffLandButton.setImageLevel(0);
+                break;
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+            case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                mTakeoffLandButton.setImageLevel(1);
+                break;
+        }
     }
 
     @Override
@@ -200,45 +237,45 @@ public class RecognitionActivity extends AppCompatActivity implements BebopDrone
 
     }
 
-    public void enableFollowing(boolean enable){
+    public void enableFollowing(boolean enable) {
         if (!enable) {
             mDrone.setFlag((byte) 0);
             mDrone.setRoll(0);
             mDrone.setPitch(0);
             mDrone.setYaw(0);
             mVideoView.setDrawingCacheEnabled(false);
-        }else{
+        } else {
             mVideoView.setDrawingCacheEnabled(true);
             mVideoView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
         }
         mIsEnabled = enable;
     }
 
-    public void onImageReceived(ARFrame frame){
-        if (mIsEnabled){
+    public void onImageReceived(ARFrame frame) {
+        if (mIsEnabled) {
             opencv_core.RectVector faces = new opencv_core.RectVector();
             opencv_core.Mat image = new opencv_core.Mat(frame.getByteData());
             mClassifier.detectMultiScale(image, faces);
-            if (faces.size() != 0){
+            if (faces.size() != 0) {
                 opencv_core.Rect faceConsidered = faces.get(0);
                 //Affichage du rectangle
                 //opencv_imgproc.rectangle(image, faceConsidered, new opencv_core.Scalar(0, 255, 0, 1));
                 int[] faceCenterCoordinates;
-                if (image.arrayWidth() != mVideoView.getWidth() || image.arrayHeight() != mVideoView.getHeight()){
-                    faceCenterCoordinates = new int[]{faceConsidered.x() + (faceConsidered.width()/2), faceConsidered.y() + (faceConsidered.height()/2)};
-                }else{
+                if (image.arrayWidth() != mVideoView.getWidth() || image.arrayHeight() != mVideoView.getHeight()) {
+                    faceCenterCoordinates = new int[]{faceConsidered.x() + (faceConsidered.width() / 2), faceConsidered.y() + (faceConsidered.height() / 2)};
+                } else {
                     faceCenterCoordinates = new int[]{faceConsidered.x() * mVideoView.getWidth() / image.size().width(),
-                    faceConsidered.y() * mVideoView.getHeight() / image.size().height()};
+                            faceConsidered.y() * mVideoView.getHeight() / image.size().height()};
                 }
                 image.size().height();
                 mDrone.setFlag((byte) 1);
-                mDrone.setRoll(((int) (10 * (faceCenterCoordinates[0] - mScreenWidth/2 )/ Math.abs(faceCenterCoordinates[0] - mScreenWidth/2))));
-                mDrone.setGaz(((int) (10 * (mScreenHeight/2- faceCenterCoordinates[1])/ Math.abs(mScreenHeight/2 - faceCenterCoordinates[1]))));
+                mDrone.setRoll(((int) (10 * (faceCenterCoordinates[0] - mScreenWidth / 2) / Math.abs(faceCenterCoordinates[0] - mScreenWidth / 2))));
+                mDrone.setGaz(((int) (10 * (mScreenHeight / 2 - faceCenterCoordinates[1]) / Math.abs(mScreenHeight / 2 - faceCenterCoordinates[1]))));
 
-                if ((faceCenterCoordinates[0] < mScreenWidth /2 + 10) && (faceCenterCoordinates[0] > mScreenWidth/2 - 10)){
+                if ((faceCenterCoordinates[0] < mScreenWidth / 2 + 10) && (faceCenterCoordinates[0] > mScreenWidth / 2 - 10)) {
                     mDrone.setRoll(0);
                 }
-                if ((faceCenterCoordinates[1] < mScreenHeight/2 + 10) && (faceCenterCoordinates[1] > mScreenHeight/2 - 10)){
+                if ((faceCenterCoordinates[1] < mScreenHeight / 2 + 10) && (faceCenterCoordinates[1] > mScreenHeight / 2 - 10)) {
                     mDrone.setGaz(0);
                 }
             }

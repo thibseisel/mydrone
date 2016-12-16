@@ -80,12 +80,12 @@ public class PathControlTask extends AsyncTask<Void, Integer, float[]> {
                 previousX = actualX;
                 previousY = actualY;
                 if (Math.abs(distX) >= Math.abs(distY)) {
-                    timeToMove = (Math.abs(distX) / 2) * 1000;
+                    timeToMove = (Math.abs(distX) / 1.5f) * 1000;
                     mDrone.setFlag(BebopDrone.FLAG_ENABLED);
                     mDrone.setRoll(Math.round(10 * (distX / Math.abs(distX))));
                     mDrone.setPitch(Math.round(distY / timeToMove));
                 } else {
-                    timeToMove = (Math.abs(distY) / 2) * 1000;
+                    timeToMove = (Math.abs(distY) / 1.5f) * 1000;
                     mDrone.setFlag(BebopDrone.FLAG_ENABLED);
                     mDrone.setPitch(Math.round(10 * (distY / Math.abs(distY))));
                     mDrone.setRoll(Math.round(distX / timeToMove));

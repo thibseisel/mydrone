@@ -20,7 +20,7 @@
     <string name="choice_piloting_mode">Choisissez un mode de pilotage</string>
     <string name="control_accelerometer">Accéléromètre</string>
     <string name="control_buttons">Boutons</string>
-    <string name="control_joystick">Joystick</string>
+    <string name="control_joystick">Joysticks</string>
     <string name="control_pathdraw">Tracé</string>
     <string name="picture_saved">Photo sauvegardée</string>
     <string name="connecting">Connexion…</string>
@@ -32,5 +32,7 @@
     <string name="ok">Valider</string>
     <string name="label_length">Longueur (mètres)</string>
     <string name="label_width">Largeur (mètres)</string>
-    <string name="control_autonomous">Autonome</string>
+    <string name="control_face">Détection visage</string>
+    <string name="follow_me">Suivre</string>
+    <string name="unfollow">Arrêter</string>
 </resources>
