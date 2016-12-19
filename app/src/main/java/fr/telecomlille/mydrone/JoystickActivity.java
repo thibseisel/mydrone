@@ -24,6 +24,9 @@ import fr.telecomlille.mydrone.view.JoystickView;
 
 /**
  * Permet le pilotage du drône avec un ensemble de 2 Joysticks, placés sur les bords de l'écran.
+ * Le joystick de gauche contrôle les déplacements dans un plan parallèle au sol,
+ * tandis que celui de droite permet de régler l'altitude et l'angle de rotation
+ * autour d'un axe perpendiculaire au sol.
  */
 public class JoystickActivity extends AppCompatActivity implements BebopDrone.Listener {
 
@@ -39,6 +42,7 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
     private static final int SENSITIVITY = 50;
     private BebopVideoView mVideoView;
     private BebopDrone mDrone;
+
     /**
      * Callback appelé lorsque la position du doigt sur le Joystick gauche a changé.
      * Ce joystick contrôle les déplacements du drône dans le plan (X,Z).
@@ -55,6 +59,7 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
             mDrone.setRoll((int) Math.round(roll));
         }
     };
+
     /**
      * Callback appelé lorsque la position du doigt sur le Joystick droit a changé.
      * Ce joystick contrôle le "Yaw" (rotation gauche/droite) et le "Gaz" (altitude du drône).
@@ -70,6 +75,7 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
             mDrone.setGaz((int) Math.round(gaz));
         }
     };
+
     private ImageView mBatteryIndicator;
     private ProgressBar mBatteryBar;
     private ImageButton mTakeoffLandButton;
@@ -218,7 +224,8 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
 
     @Override
     public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-        Log.d(TAG, "onPictureTaken() called with: error = [" + error + "]");
+        Toast.makeText(this, R.string.picture_saved, Toast.LENGTH_SHORT).show();
+        mDrone.getLastFlightMedias();
     }
 
     @Override
@@ -238,12 +245,11 @@ public class JoystickActivity extends AppCompatActivity implements BebopDrone.Li
 
     @Override
     public void onDownloadProgressed(String mediaName, int progress) {
-        Log.d(TAG, "onDownloadProgressed() called");
     }
 
     @Override
     public void onDownloadComplete(String mediaName) {
-        Log.d(TAG, "onDownloadComplete() called with: mediaName = [" + mediaName + "]");
+        Toast.makeText(this, "Téléchargement terminé", Toast.LENGTH_SHORT).show();
     }
 
     @Override

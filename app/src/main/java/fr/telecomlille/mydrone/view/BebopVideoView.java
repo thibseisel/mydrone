@@ -17,6 +17,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Un View capable de décoder les frame prises par la caméra du drone pour les afficher en
+ * tant que flux vidéo continu.
+ */
 public class BebopVideoView extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final String TAG = "BebopVideoView";

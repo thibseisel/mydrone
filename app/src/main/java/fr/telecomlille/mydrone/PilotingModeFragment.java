@@ -88,6 +88,8 @@ public class PilotingModeFragment extends BottomSheetDialogFragment {
     /**
      * Classe permettant la mise en forme de la liste des modes de pilotage disponibles
      * dans une grille avec un RecyclerView.
+     * Pour ajouter un mode de pilotage, il suffit d'ajouter une référence à l'Activity
+     * responsable du pilotage dans la liste {@link #ACTIVITIES}.
      */
     private static class PilotingModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

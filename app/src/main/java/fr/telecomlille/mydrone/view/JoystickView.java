@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,9 +17,7 @@ import fr.telecomlille.mydrone.utils.ViewUtil;
 public class JoystickView extends View {
 
     private static final String TAG = "JoystickView";
-    private final Drawable[] mDrawables = new Drawable[4];
     private boolean mIsPressed;
-    private boolean mVibrateOnTouch;
     private int mTrackColor;
     private int mThumbColor;
     private int mThumbColorPressed;
@@ -73,12 +70,6 @@ public class JoystickView extends View {
         // Récupération des attributs personnalisés
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.JoystickView,
                 defStyleAttr, 0);
-        mVibrateOnTouch = a.getBoolean(R.styleable.JoystickView_vibrateOnTouch, false);
-        mDrawables[0] = a.getDrawable(R.styleable.JoystickView_drawableStart);
-        mDrawables[1] = a.getDrawable(R.styleable.JoystickView_drawableTop);
-        mDrawables[2] = a.getDrawable(R.styleable.JoystickView_drawableEnd);
-        mDrawables[3] = a.getDrawable(R.styleable.JoystickView_drawableBottom);
-
         a.recycle();
         init();
     }

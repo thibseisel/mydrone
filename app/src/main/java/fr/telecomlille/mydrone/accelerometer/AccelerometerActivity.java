@@ -27,6 +27,19 @@ import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.BebopVideoView;
 
+/**
+ * Activité permettant de piloter le drone à l'aide de l'accéléromètre de l'appareil.
+ * L'appareil doit être tenu en mode paysage.
+ * Le controle s'appuie sur des seuils d'inclinaison de l'appareil. Lorsque le seul est dépassé,
+ * une commande de déplacement est envoyée au drone selon la direction de l'inclinaison.<p>
+ * Note : la position neutre de l'appareil (inclinaison pour laquelle le drone reste immobile) n'est pas
+ * la position "parallèle au sol". Nous avons choisi une position légèrement inclinée vers l'utilisateur
+ * pour faciliter les déplacements vers l'avant sans sacrifier la visibilité de l'écran.<p>
+ *
+ * Une amélioration possible du programme serait d'utiliser les données issues de la classe
+ * {@link OrientationSensor}, plus précises, et d'implémenter un système de calibrage
+ * ainsi qu'un indicateur visuel de l'inclinaison de l'appareil par rapport à la position neutre.
+ */
 public class AccelerometerActivity extends AppCompatActivity implements BebopDrone.Listener,
         SensorEventListener {
 
@@ -42,8 +55,6 @@ public class AccelerometerActivity extends AppCompatActivity implements BebopDro
     private ImageView mBatteryIndicator;
 
     private ProgressDialog mConnectionDialog;
-
-    // TODO Utiliser notre classe OrientationSensor ?
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

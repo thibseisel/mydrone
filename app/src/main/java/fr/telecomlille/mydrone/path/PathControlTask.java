@@ -13,8 +13,6 @@ import fr.telecomlille.mydrone.view.DrawPathView;
  * Etant donné que l'application doit attendre que le drône effectue son mouvement avant chaque
  * changement de direction, cette tâche est exécutée sur un autre thread pour éviter de bloquer
  * l'interface graphique.
- *
- * @author Hélène
  */
 public class PathControlTask extends AsyncTask<Void, Integer, float[]> {
 
@@ -28,6 +26,16 @@ public class PathControlTask extends AsyncTask<Void, Integer, float[]> {
     private List<float[]> mPointsInPath;
     private TaskListener mTaskListener;
 
+    /**
+     * Construit une nouvelle instance de cette Task.
+     * Ceci doit être effectué pour chaque nouveau tracé.
+     * @param drone objet permettant le pilotage du drone
+     * @param pathView vue réalisant le tracé
+     * @param initialRealPos position réelle du drne
+     * @param roomSize dimensions de la pièce selon x (roomSize[0]) et y (roomSize[1])
+     * @param pointsInPath liste des coordonnées des points du tracé réalisé sur l'écran
+     * @param taskListener listener permettant de recevoir des évènements liés au déplacement
+     */
     public PathControlTask(BebopDrone drone, DrawPathView pathView, float[] initialRealPos, float[] roomSize,
                            List<float[]> pointsInPath, TaskListener taskListener) {
         mDrone = drone;
@@ -137,6 +145,9 @@ public class PathControlTask extends AsyncTask<Void, Integer, float[]> {
         }
     }
 
+    /**
+     * Interface de callback permettant de notifier le client lorsque le drone a fini de se déplacer.
+     */
     public interface TaskListener {
         /**
          * Appelée lorsque le tracé dessiné à l'écran a été reproduit par le drône.

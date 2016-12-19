@@ -28,7 +28,13 @@ import fr.telecomlille.mydrone.R;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.DrawPathView;
 
-
+/**
+ * Activité permettant le contrôle du drone en traçant des formes sur l'écran.
+ * Dans ce mode, le drone ne se déplace que dans un plan parallèle au sol.
+ * Les tracés sont produits et affichés par la classe {@link DrawPathView}.
+ * Pour éviter les déplacements dangereux, les mouvements du drone son restreints dans un rectangle
+ * dont les dimensions sont définies par l'utilisateur au démarrage de l'Activité.
+ */
 public class PathControlActivity extends AppCompatActivity
         implements DrawPathView.PathListener, BebopDrone.Listener, PathControlTask.TaskListener {
 

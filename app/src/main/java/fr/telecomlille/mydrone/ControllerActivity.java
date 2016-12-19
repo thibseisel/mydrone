@@ -22,10 +22,13 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import fr.telecomlille.mydrone.drone.BebopDrone;
 import fr.telecomlille.mydrone.view.BebopVideoView;
 
+/**
+ * Activité permettant le pilotage du drone en utilisant des boutons virtuels placés sur l'écran.
+ */
 public class ControllerActivity extends AppCompatActivity implements BebopDrone.Listener {
 
-    public static final int LEVEL_LAND = 1;
-    public static final int LEVEL_TAKEOFF = 0;
+    private static final int LEVEL_LAND = 1;
+    private static final int LEVEL_TAKEOFF = 0;
 
     private static final String TAG = "ControllerActivity";
     private BebopVideoView mVideoView;
@@ -345,12 +348,10 @@ public class ControllerActivity extends AppCompatActivity implements BebopDrone.
 
     @Override
     public void onDownloadProgressed(String mediaName, int progress) {
-        Log.d(TAG, "onDownloadProgressed() called with: mediaName = [" + mediaName + "], progress = [" + progress + "]");
     }
 
     @Override
     public void onDownloadComplete(String mediaName) {
-        Log.d(TAG, "onDownloadComplete() called with: mediaName = [" + mediaName + "]");
         Toast.makeText(this, "Téléchargement terminé", Toast.LENGTH_SHORT).show();
     }
 

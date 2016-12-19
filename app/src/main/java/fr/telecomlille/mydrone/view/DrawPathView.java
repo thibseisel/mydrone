@@ -18,6 +18,8 @@ import fr.telecomlille.mydrone.utils.ViewUtil;
 /**
  * Une View transparente permettant de dessiner des tracés avec le doigt.
  * Le tracé précédent est effacé lorsqu'un nouveau tracé doit être dessiné.
+ * Ce View fonctionne en 2 modes : le mode tracé et le mode annulation.
+ * Ce mode peut être changé via la méthode {@link #setDrawingEnabled(boolean)}.
  */
 public class DrawPathView extends View {
 
@@ -90,6 +92,9 @@ public class DrawPathView extends View {
         }
     }
 
+    /**
+     * Lorsque le doigt est posé sur l'écran, on réinitilise la liste des points de contact.
+     */
     private void onTouchDown(float x, float y) {
         mPath.reset();
         mPointsInPath.clear();
@@ -98,6 +103,10 @@ public class DrawPathView extends View {
         invalidate();
     }
 
+    /**
+     * Lorsque le doigt se déplace sur l'écran, chaque point de contact (si suffisamment éloigné du précédent)
+     * est enregistré dans la liste des points du tracé.
+     */
     private void onTouchMove(float x, float y) {
         float[] lastPoint = mPointsInPath.get(mPointsInPath.size() - 1);
         float dx = Math.abs(x - lastPoint[0]);
@@ -111,6 +120,11 @@ public class DrawPathView extends View {
         }
     }
 
+    /**
+     * Lorsque le doigt est levé, on finalise le tracé.
+     * En mode tracé, une notification est envoyée avec les points du tracé.
+     * En mode annulation, la méthode {@link PathListener#onPathCanceled()} est appelée.
+     */
     private void onTouchUp(float x, float y) {
         mPath.lineTo(x, y);
         invalidate();

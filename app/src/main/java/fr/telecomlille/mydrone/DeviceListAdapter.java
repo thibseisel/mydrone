@@ -11,9 +11,10 @@ import android.widget.TextView;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 /**
- * Created by Thib on 26/10/2016.
+ * Un {@link ArrayAdapter} qui permet d'afficher les informations concernant les drones
+ * détectés par l'appareil dans une {@link android.widget.ListView}.
+ * Cette implémentation affiche le nom du drone ainsi que son identifiant.
  */
-
 public class DeviceListAdapter extends ArrayAdapter<ARDiscoveryDeviceService> {
 
     private final LayoutInflater mInflater;
@@ -43,6 +44,9 @@ public class DeviceListAdapter extends ArrayAdapter<ARDiscoveryDeviceService> {
         return convertView;
     }
 
+    /**
+     * Pattern ViewHolder permettant d'améliorer les performances de défilement des ListView.
+     */
     private static class ViewHolder {
 
         final TextView deviceName;

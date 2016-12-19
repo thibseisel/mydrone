@@ -34,6 +34,8 @@ import fr.telecomlille.mydrone.utils.PermissionUtil;
  * Activité principale permettant d'initier la connexion à distance avec le drône Bebop.
  * L'activité affiche une liste des différents appareils détectés.
  * Lorsqu'on clique sur l'un d'eux, une boite de dialogue s'ouvre pour choisir le mode de pilotage souhaité.
+ *
+ * @see PilotingModeFragment
  */
 public class MainActivity extends AppCompatActivity
         implements ARDiscoveryServicesDevicesListUpdatedReceiverDelegate,
